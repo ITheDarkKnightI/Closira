@@ -20,7 +20,7 @@ import java.util.Objects;
 public class MachineTranslator {
 
     private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
-    private final ZooModel<Encoding, NDList> ENCODER;
+    private final ZooModel<long[][], NDList> ENCODER;
     private final ZooModel<DecoderInput, NDList> DECODER;
     private final HuggingFaceTokenizer TOKENIZER;
     private static final Logger log = LoggerFactory.getLogger(MachineTranslator.class);
@@ -35,7 +35,7 @@ public class MachineTranslator {
             this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
                     new DecoderTranslator(), DecoderInput.class, NDList.class).loadModel();
             this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
-                    new EncoderTranslator(), Encoding.class, NDList.class).loadModel();
+                    new EncoderTranslator(), long[][].class, NDList.class).loadModel();
             this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);
         }catch(Exception e){
             throw new RuntimeException("Error initializing objects: ", e);
@@ -74,11 +74,11 @@ public class MachineTranslator {
         log.info("Data for translate initialized");
 
         try (NDManager manager = NDManager.newBaseManager();
-             Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
+             Predictor<long[][], NDList> encoderPredictor = ENCODER.newPredictor();
              Predictor<DecoderInput, NDList> decoderPredictor = DECODER.newPredictor()){
             log.info("Start of translating");
             long currentToken = 2L;
-            NDList encoderOutput = encoderPredictor.predict(encoding);
+            NDList encoderOutput = encoderPredictor.predict(new long[][]{indices, attentionMask});
             encoderOutput.attach(manager);
             NDList decoderKVCache = createInitialKVCache(manager, parameters, indices.length);
             NDArray useCacheBranch = manager.create(new boolean[]{false});

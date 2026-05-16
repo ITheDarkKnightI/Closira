@@ -7,8 +7,8 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
-        String text = "Translate this text";
-        String src = "eng_Latn";
+        String text = "Hallo, wie geht's?";
+        String src = "deu_Latn";
         String targ = "rus_Cyrl";
         String path = "C:\\Users\\Serhii\\Downloads";
         Map<String, Path> map = new HashMap<>();

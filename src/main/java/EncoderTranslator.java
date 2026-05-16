@@ -6,12 +6,12 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
-public class EncoderTranslator implements Translator<Encoding, NDList> {
+public class EncoderTranslator implements Translator<long[][], NDList> {
     @Override
-    public NDList processInput(TranslatorContext translatorContext, Encoding encoding) throws Exception {
+    public NDList processInput(TranslatorContext translatorContext, long[][] input) throws Exception {
         NDManager ndManager = translatorContext.getNDManager();
-        long[] indices = encoding.getIds();
-        long[] attentionMask = encoding.getAttentionMask();
+        long[] indices = input[0];
+        long[] attentionMask = input[1];
         NDArray indicesTensor = ndManager.create(indices).reshape(1, indices.length);
         NDArray attentionMaskTensor = ndManager.create(attentionMask).reshape(1, attentionMask.length);
         translatorContext.setAttachment("indices", indicesTensor);
