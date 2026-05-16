@@ -1,3 +1,4 @@
+import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.inference.Predictor;
 import ai.djl.ndarray.NDList;
@@ -14,8 +15,8 @@ import java.util.Objects;
 public class MachineTranslator {
 
     private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
-    private final ZooModel<String, NDList> ENCODER;
-    private final Predictor<String, NDList> ENCODER_PREDICTOR;
+    private final ZooModel<Encoding, NDList> ENCODER;
+    private final Predictor<Encoding, NDList> ENCODER_PREDICTOR;
     private final ZooModel<NDList, NDList> DECODER;
     private final Predictor<NDList, NDList> DECODER_PREDICTOR;
     private final HuggingFaceTokenizer TOKENIZER;
@@ -31,7 +32,7 @@ public class MachineTranslator {
                     new DecoderTranslator(), NDList.class, NDList.class).loadModel();
             this.DECODER_PREDICTOR = DECODER.newPredictor();
             this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
-                    new EncoderTranslator(), String.class, NDList.class).loadModel();
+                    new EncoderTranslator(), Encoding.class, NDList.class).loadModel();
             this.ENCODER_PREDICTOR = ENCODER.newPredictor();
             this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);
         }catch(Exception e){
