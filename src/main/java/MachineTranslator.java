@@ -2,6 +2,8 @@ import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.inference.Predictor;
 import ai.djl.ndarray.NDList;
+import ai.djl.ndarray.NDManager;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.repository.zoo.Criteria;
 import ai.djl.repository.zoo.ZooModel;
 import ai.djl.translate.Translator;
@@ -60,5 +62,19 @@ public class MachineTranslator {
             throw new RuntimeException("Translation error", e);
         }
         return "";
+    }
+
+    private NDList createInitialKVCache(NDManager manager, ModelParameters params, int encoderSeqLength){
+        NDList KVCache = new NDList();
+        Shape decoderCacheShape = new Shape(1, params.heads(), 1, params.headDim());
+        Shape encoderCacheShape = new Shape(1, params.heads(), encoderSeqLength, params.headDim());
+        for(int i = 0; i < params.layers(); i++){
+            KVCache.add(manager.zeros(decoderCacheShape));
+            KVCache.add(manager.zeros(decoderCacheShape));
+
+            KVCache.add(manager.zeros(encoderCacheShape));
+            KVCache.add(manager.zeros(encoderCacheShape));
+        }
+        return KVCache;
     }
 }
