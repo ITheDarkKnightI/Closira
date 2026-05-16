@@ -30,6 +30,7 @@ public class MachineTranslator {
         Path encoderPath = Objects.requireNonNull(paths.get("encoder"), "Encoder not found");
         Path decoderPath = Objects.requireNonNull(paths.get("decoder"), "Decoder not found");
         Path tokenizerPath = Objects.requireNonNull(paths.get("tokenizer"), "Tokenizer not found");
+        log.info("Path");
         try {
             this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
                     new DecoderTranslator(), DecoderInput.class, NDList.class).loadModel();
@@ -39,6 +40,7 @@ public class MachineTranslator {
         }catch(Exception e){
             throw new RuntimeException("Error initializing objects: ", e);
         }
+        log.info("Model is initialized");
     }
     /**
      A method that returns a Criteria<I, O>
@@ -47,6 +49,7 @@ public class MachineTranslator {
     private <I, O> Criteria<I, O> createCriteria(Path modelPath, String modelName,
                                                  Translator<I, O> translator,
                                                  Class<I> inputType, Class<O> outputType){
+        log.info("Criteria create");
         return Criteria.builder().setTypes(inputType, outputType).optModelPath(modelPath).optModelName(modelName)
                 .optTranslator(translator).optEngine("OnnxRuntime").build();
     }
@@ -67,21 +70,25 @@ public class MachineTranslator {
         long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
         ModelParameters parameters = new ModelParameters(12, 16, 64);
         ArrayList<Long> resultTokenList = new ArrayList<>();
+        log.info("Data for translate initialized");
 
         try (NDManager manager = NDManager.newBaseManager();
              Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
              Predictor<DecoderInput, NDList> decoderPredictor = DECODER.newPredictor()){
-
+            log.info("Start of translating");
             long currentToken = 2L;
             NDList encoderOutput = encoderPredictor.predict(encoding);
             NDList decoderKVCache = createInitialKVCache(manager, parameters, indices.length);
             NDArray useCacheBranch = manager.create(new boolean[]{false});
             DecoderInput decoderInput = new DecoderInput(currentToken, attentionMask, encoderOutput.getFirst(),
                     decoderKVCache, useCacheBranch);
-
+            log.info("Created DecoderInput");
+            log.info("*Start of cycle*");
             for(int i = 0; i < 512; i++){
                 NDList decoderOutput = decoderPredictor.predict(decoderInput);
+                log.info("Decoder output is taken");
                 NDArray logits = decoderOutput.getFirst();
+                log.info("logits from decoder output is taken");
 
                 NDArray bestTokenIdTensor = logits.argMax(-1);
                 long predictedTokenId = bestTokenIdTensor.getLong(0, -1);
@@ -89,10 +96,12 @@ public class MachineTranslator {
                     predictedTokenId = targLangToken;
                 resultTokenList.add(predictedTokenId);
                 decoderInput = decoderInput.withToken(predictedTokenId);
-
+                log.info("next token is generated");
                 try(NDManager subManager = NDManager.newBaseManager()){
+                    log.info("start of generating VKCache");
                     decoderKVCache.attach(subManager);
                     if(i == 0){
+                        log.info("the first option (i == 0)");
                         for(int j = 0; j < parameters.layers() * 4; j++){
                             NDArray newTensor = decoderOutput.get(j + 1);
                             newTensor.detach();
@@ -100,6 +109,7 @@ public class MachineTranslator {
                         }
                         decoderInput = decoderInput.withUseCacheBranch(manager.create(new boolean[]{true}));
                     }else{
+                        log.info("other caches");
                         for(int j = 0; j < parameters.layers(); j++){
                             NDArray newKey = decoderOutput.get(j*4+1);
                             NDArray newValue = decoderOutput.get(j*4+2);
@@ -113,6 +123,7 @@ public class MachineTranslator {
                 if(predictedTokenId == 2L)
                     break;
             }
+            log.info("*End of cycle*");
         }catch(Exception e){
             throw new RuntimeException("Translation error", e);
         }
