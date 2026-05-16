@@ -1,6 +1,7 @@
 import ai.djl.huggingface.tokenizers.Encoding;
 import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer;
 import ai.djl.inference.Predictor;
+import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.Shape;
@@ -54,10 +55,16 @@ public class MachineTranslator {
         long[] attentionMask = encoding.getAttentionMask();
         long srcLangToken = TOKENIZER.encode(srcLang).getIds()[0];
         long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
-        try (Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
+        ModelParameters parameters = new ModelParameters(12, 16, 64);
+
+        try (NDManager manager = NDManager.newBaseManager();
+             Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
              Predictor<NDList, NDList> decoderPredictor = DECODER.newPredictor()){
             NDList encoderOutput = encoderPredictor.predict(encoding);
-
+            NDList decoderKVCache = createInitialKVCache(manager, parameters, indices.length);
+            NDArray useCacheBranch = manager.create(new boolean[]{false});
+            DecoderInput decoderInput = new DecoderInput(2L, attentionMask, encoderOutput.getFirst(),
+                    decoderKVCache, useCacheBranch);
         }catch(Exception e){
             throw new RuntimeException("Translation error", e);
         }
