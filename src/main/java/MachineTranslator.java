@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class MachineTranslator {
 
-    private final int DECODER_LAYERS;
+    private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
     private final ZooModel<String, NDList> ENCODER;
     private final Predictor<String, NDList> ENCODER_PREDICTOR;
     private final ZooModel<NDList, NDList> DECODER;
@@ -25,8 +25,18 @@ public class MachineTranslator {
 
         Path encoderPath = Objects.requireNonNull(paths.get("encoder"), "Encoder not found");
         Path decoderPath = Objects.requireNonNull(paths.get("decoder"), "Decoder not found");
-        Path tokenizer = Objects.requireNonNull(paths.get("tokenizer"), "Tokenizer not found");
-
+        Path tokenizerPath = Objects.requireNonNull(paths.get("tokenizer"), "Tokenizer not found");
+        try {
+            this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
+                    new DecoderTranslator<NDList, NDList>(), NDList.class, NDList.class);
+            this.DECODER_PREDICTOR = DECODER.newPredictor();
+            this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
+                    new EncoderTranslator<String, NDList>(), String.class, NDList.class);
+            this.ENCODER_PREDICTOR = ENCODER.newPredictor();
+            this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);
+        }catch(Exception e){
+            throw new RuntimeException("Error initializing objects: ", e);
+        }
     }
     /*******
      A method that returns a Criteria<I, O>
