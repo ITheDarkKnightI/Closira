@@ -19,7 +19,7 @@ public class MachineTranslator {
 
     private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
     private final ZooModel<Encoding, NDList> ENCODER;
-    private final ZooModel<NDList, NDList> DECODER;
+    private final ZooModel<DecoderInput, NDList> DECODER;
     private final HuggingFaceTokenizer TOKENIZER;
     private static final Logger log = LoggerFactory.getLogger(MachineTranslator.class);
     public MachineTranslator(ModelConfig config){
@@ -30,7 +30,7 @@ public class MachineTranslator {
         Path tokenizerPath = Objects.requireNonNull(paths.get("tokenizer"), "Tokenizer not found");
         try {
             this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
-                    new DecoderTranslator(), NDList.class, NDList.class).loadModel();
+                    new DecoderTranslator(), DecoderInput.class, NDList.class).loadModel();
             this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
                     new EncoderTranslator(), Encoding.class, NDList.class).loadModel();
             this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);

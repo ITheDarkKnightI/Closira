@@ -3,7 +3,7 @@ import ai.djl.translate.Batchifier;
 import ai.djl.translate.Translator;
 import ai.djl.translate.TranslatorContext;
 
-public class DecoderTranslator implements Translator<NDList, NDList> {
+public class DecoderTranslator implements Translator<DecoderInput, NDList> {
 
     @Override
     public Batchifier getBatchifier() {
@@ -11,8 +11,8 @@ public class DecoderTranslator implements Translator<NDList, NDList> {
     }
 
     @Override
-    public NDList processInput(TranslatorContext translatorContext, NDList o) throws Exception {
-        return o;
+    public NDList processInput(TranslatorContext translatorContext, DecoderInput input) throws Exception {
+        return null;
     }
 
     @Override
