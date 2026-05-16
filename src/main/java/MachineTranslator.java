@@ -28,10 +28,10 @@ public class MachineTranslator {
         Path tokenizerPath = Objects.requireNonNull(paths.get("tokenizer"), "Tokenizer not found");
         try {
             this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
-                    new DecoderTranslator<NDList, NDList>(), NDList.class, NDList.class);
+                    new DecoderTranslator(), NDList.class, NDList.class).loadModel();
             this.DECODER_PREDICTOR = DECODER.newPredictor();
             this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
-                    new EncoderTranslator<String, NDList>(), String.class, NDList.class);
+                    new EncoderTranslator(), String.class, NDList.class).loadModel();
             this.ENCODER_PREDICTOR = ENCODER.newPredictor();
             this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);
         }catch(Exception e){
