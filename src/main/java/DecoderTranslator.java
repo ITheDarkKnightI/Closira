@@ -20,8 +20,10 @@ public class DecoderTranslator implements Translator<DecoderInput, NDList> {
         NDArray attentionMaskTensor = ndManager.create(attentionMask).reshape(1, attentionMask.length);
         NDList KVCache = input.pastKeyValues();
         NDArray useCacheBranch = input.useCacheBranch();
+        NDArray encoderHiddenStates = input.encoderHiddenStates();
 
         NDList decoderInput = new NDList(attentionMaskTensor, currentTokenTensor);
+        decoderInput.add(encoderHiddenStates);
         decoderInput.addAll(KVCache);
         decoderInput.add(useCacheBranch);
         return decoderInput;
@@ -29,6 +31,7 @@ public class DecoderTranslator implements Translator<DecoderInput, NDList> {
 
     @Override
     public NDList processOutput(TranslatorContext translatorContext, NDList ndList) throws Exception {
+        ndList.detach();
         return ndList;
     }
 }

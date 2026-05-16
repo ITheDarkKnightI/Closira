@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
-        String text = "";
+        String text = "Translate this text";
         String src = "eng_Latn";
         String targ = "rus_Cyrl";
         String path = "C:\\Users\\Serhii\\Downloads";
@@ -21,10 +21,10 @@ public class Main {
                 map
         );
         MachineTranslator translator = new MachineTranslator(config);
-        while(text != "exiq"){
-            text = scanner.nextLine();
-            translator.translate(text, src, targ);
+//        while(!text.equals("exit")){
+//            text = scanner.nextLine();
+            text = translator.translate(text, src, targ);
             System.out.println("translated text: " + text);
-        }
+//        }
     }
 }

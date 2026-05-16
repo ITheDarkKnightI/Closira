@@ -67,7 +67,8 @@ public class MachineTranslator {
         long[] indices = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
         long srcLangToken = TOKENIZER.encode(srcLang).getIds()[0];
-        long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
+        indices[0] = srcLangToken;
+        long targLangToken = 256147L;
         ModelParameters parameters = new ModelParameters(12, 16, 64);
         ArrayList<Long> resultTokenList = new ArrayList<>();
         log.info("Data for translate initialized");
@@ -78,6 +79,7 @@ public class MachineTranslator {
             log.info("Start of translating");
             long currentToken = 2L;
             NDList encoderOutput = encoderPredictor.predict(encoding);
+            encoderOutput.attach(manager);
             NDList decoderKVCache = createInitialKVCache(manager, parameters, indices.length);
             NDArray useCacheBranch = manager.create(new boolean[]{false});
             DecoderInput decoderInput = new DecoderInput(currentToken, attentionMask, encoderOutput.getFirst(),
@@ -85,43 +87,41 @@ public class MachineTranslator {
             log.info("Created DecoderInput");
             log.info("*Start of cycle*");
             for(int i = 0; i < 512; i++){
-                NDList decoderOutput = decoderPredictor.predict(decoderInput);
-                log.info("Decoder output is taken");
-                NDArray logits = decoderOutput.getFirst();
-                log.info("logits from decoder output is taken");
-
-                NDArray bestTokenIdTensor = logits.argMax(-1);
-                long predictedTokenId = bestTokenIdTensor.getLong(0, -1);
-                if(i == 0)
-                    predictedTokenId = targLangToken;
-                resultTokenList.add(predictedTokenId);
-                decoderInput = decoderInput.withToken(predictedTokenId);
-                log.info("next token is generated");
                 try(NDManager subManager = NDManager.newBaseManager()){
-                    log.info("start of generating VKCache");
-                    decoderKVCache.attach(subManager);
+                    NDList decoderOutput = decoderPredictor.predict(decoderInput);
+                    decoderOutput.attach(subManager);
+                    NDArray logits = decoderOutput.getFirst();
+
+                    NDArray bestTokenIdTensor = logits.argMax(2);
+                    long predictedTokenId = bestTokenIdTensor.getLong(0, -1);
+                    if(i == 0)
+                        predictedTokenId = targLangToken;
+                    resultTokenList.add(predictedTokenId);
+                    decoderInput = decoderInput.withToken(predictedTokenId);
+
                     if(i == 0){
-                        log.info("the first option (i == 0)");
                         for(int j = 0; j < parameters.layers() * 4; j++){
-                            NDArray newTensor = decoderOutput.get(j + 1);
+                            NDArray newTensor = decoderOutput.get(j + 1).duplicate();
                             newTensor.detach();
+                            newTensor.attach(manager);
                             decoderKVCache.set(j, newTensor).close();
                         }
                         decoderInput = decoderInput.withUseCacheBranch(manager.create(new boolean[]{true}));
                     }else{
-                        log.info("other caches");
                         for(int j = 0; j < parameters.layers(); j++){
-                            NDArray newKey = decoderOutput.get(j*4+1);
-                            NDArray newValue = decoderOutput.get(j*4+2);
+                            NDArray newKey = decoderOutput.get(j*4+1).duplicate();
+                            NDArray newValue = decoderOutput.get(j*4+2).duplicate();
                             newKey.detach();
                             newValue.detach();
-                            decoderKVCache.set(j, newKey);
-                            decoderKVCache.set(j + 1, newValue);
+                            newKey.attach(manager);
+                            newValue.attach(manager);
+                            decoderKVCache.set(j * 4, newKey).close();
+                            decoderKVCache.set(j * 4 + 1, newValue).close();
                         }
                     }
+                    if(predictedTokenId == 2L) // 2L is end-code for NLLB-200
+                        break;
                 }
-                if(predictedTokenId == 2L)
-                    break;
             }
             log.info("*End of cycle*");
         }catch(Exception e){

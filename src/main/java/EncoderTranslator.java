@@ -13,7 +13,7 @@ public class EncoderTranslator implements Translator<Encoding, NDList> {
         long[] indices = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
         NDArray indicesTensor = ndManager.create(indices).reshape(1, indices.length);
-        NDArray attentionMaskTensor = ndManager.create(indices).reshape(1, attentionMask.length);
+        NDArray attentionMaskTensor = ndManager.create(attentionMask).reshape(1, attentionMask.length);
         translatorContext.setAttachment("indices", indicesTensor);
         translatorContext.setAttachment("attentionMask", attentionMaskTensor);
         return new NDList(indicesTensor, attentionMaskTensor);
@@ -21,6 +21,7 @@ public class EncoderTranslator implements Translator<Encoding, NDList> {
 
     @Override
     public NDList processOutput(TranslatorContext translatorContext, NDList ndList) throws Exception {
+        ndList.detach();
         return ndList;
     }
 
