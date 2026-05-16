@@ -51,7 +51,16 @@ public class MachineTranslator {
     }
 
     public String translate(String srcText, String srcLang, String targLang){
-
+        Encoding encoding = TOKENIZER.encode(srcText, true, false);
+        long[] indices = encoding.getIds();
+        long[] attentionMask = encoding.getAttentionMask();
+        long srcLangToken = TOKENIZER.encode(srcLang).getIds()[0];
+        long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
+        try {
+            NDList encoderOutput = ENCODER_PREDICTOR.predict(encoding);
+        }catch(Exception e){
+            throw new RuntimeException("Translation error", e);
+        }
         return "";
     }
 }
