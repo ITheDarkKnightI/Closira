@@ -11,7 +11,9 @@ import ai.djl.translate.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.beans.PropertyEditorSupport;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -64,19 +66,58 @@ public class MachineTranslator {
         long srcLangToken = TOKENIZER.encode(srcLang).getIds()[0];
         long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
         ModelParameters parameters = new ModelParameters(12, 16, 64);
+        ArrayList<Long> resultTokenList = new ArrayList<>();
 
         try (NDManager manager = NDManager.newBaseManager();
              Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
-             Predictor<NDList, NDList> decoderPredictor = DECODER.newPredictor()){
+             Predictor<DecoderInput, NDList> decoderPredictor = DECODER.newPredictor()){
+
+            long currentToken = 2L;
             NDList encoderOutput = encoderPredictor.predict(encoding);
             NDList decoderKVCache = createInitialKVCache(manager, parameters, indices.length);
             NDArray useCacheBranch = manager.create(new boolean[]{false});
-            DecoderInput decoderInput = new DecoderInput(2L, attentionMask, encoderOutput.getFirst(),
+            DecoderInput decoderInput = new DecoderInput(currentToken, attentionMask, encoderOutput.getFirst(),
                     decoderKVCache, useCacheBranch);
+
+            for(int i = 0; i < 512; i++){
+                NDList decoderOutput = decoderPredictor.predict(decoderInput);
+                NDArray logits = decoderOutput.getFirst();
+
+                NDArray bestTokenIdTensor = logits.argMax(-1);
+                long predictedTokenId = bestTokenIdTensor.getLong(0, -1);
+                if(i == 0)
+                    predictedTokenId = targLangToken;
+                resultTokenList.add(predictedTokenId);
+                decoderInput = decoderInput.withToken(predictedTokenId);
+
+                try(NDManager subManager = NDManager.newBaseManager()){
+                    decoderKVCache.attach(subManager);
+                    if(i == 0){
+                        for(int j = 0; j < parameters.layers() * 4; j++){
+                            NDArray newTensor = decoderOutput.get(j + 1);
+                            newTensor.detach();
+                            decoderKVCache.set(j, newTensor).close();
+                        }
+                        decoderInput = decoderInput.withUseCacheBranch(manager.create(new boolean[]{true}));
+                    }else{
+                        for(int j = 0; j < parameters.layers(); j++){
+                            NDArray newKey = decoderOutput.get(j*4+1);
+                            NDArray newValue = decoderOutput.get(j*4+2);
+                            newKey.detach();
+                            newValue.detach();
+                            decoderKVCache.set(j, newKey);
+                            decoderKVCache.set(j + 1, newValue);
+                        }
+                    }
+                }
+                if(predictedTokenId == 2L)
+                    break;
+            }
         }catch(Exception e){
             throw new RuntimeException("Translation error", e);
         }
-        return "";
+        long[] resultTokens = resultTokenList.stream().mapToLong(Long::longValue).toArray();
+        return TOKENIZER.decode(resultTokens);
     }
 
     /**
