@@ -50,7 +50,7 @@ public class MachineTranslator {
     }
 
     public String translate(String srcText, String srcLang, String targLang){
-        
+
         return "";
     }
 }
