@@ -38,16 +38,24 @@ public class MachineTranslator {
             throw new RuntimeException("Error initializing objects: ", e);
         }
     }
-    /*******
+    /**
      A method that returns a Criteria<I, O>
      ...Params.description...
-     *******/
+     */
     private <I, O> Criteria<I, O> createCriteria(Path modelPath, String modelName,
                                                  Translator<I, O> translator,
                                                  Class<I> inputType, Class<O> outputType){
         return Criteria.builder().setTypes(inputType, outputType).optModelPath(modelPath).optModelName(modelName)
                 .optTranslator(translator).optEngine("OnnxRuntime").build();
     }
+
+    /**
+     *
+     * @param srcText
+     * @param srcLang
+     * @param targLang
+     * @return
+     */
 
     public String translate(String srcText, String srcLang, String targLang){
         Encoding encoding = TOKENIZER.encode(srcText, true, false);
@@ -70,6 +78,14 @@ public class MachineTranslator {
         }
         return "";
     }
+
+    /**
+     *
+     * @param manager
+     * @param params
+     * @param encoderSeqLength
+     * @return
+     */
 
     private NDList createInitialKVCache(NDManager manager, ModelParameters params, int encoderSeqLength){
         NDList KVCache = new NDList();
