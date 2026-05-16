@@ -54,6 +54,7 @@ public class MachineTranslator {
         long targLangToken = TOKENIZER.encode(targLang).getIds()[0];
         try (Predictor<Encoding, NDList> encoderPredictor = ENCODER.newPredictor();
              Predictor<NDList, NDList> decoderPredictor = DECODER.newPredictor()){
+            NDList encoderOutput = encoderPredictor.predict(encoding);
 
         }catch(Exception e){
             throw new RuntimeException("Translation error", e);
