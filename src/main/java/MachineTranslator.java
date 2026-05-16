@@ -48,4 +48,9 @@ public class MachineTranslator {
         return Criteria.builder().setTypes(inputType, outputType).optModelPath(modelPath).optModelName(modelName)
                 .optTranslator(translator).optEngine("OnnxRuntime").build();
     }
+
+    public String translate(String srcText, String srcLang, String targLang){
+        
+        return "";
+    }
 }
