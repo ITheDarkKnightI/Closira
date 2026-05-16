@@ -22,7 +22,7 @@ public class Main {
         );
         MachineTranslator translator = new MachineTranslator(config);
 //        while(!text.equals("exit")){
-//            text = scanner.nextLine();
+//          text = scanner.nextLine();
             text = translator.translate(text, src, targ);
             System.out.println("translated text: " + text);
 //        }

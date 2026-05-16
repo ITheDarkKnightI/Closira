@@ -66,9 +66,9 @@ public class MachineTranslator {
         Encoding encoding = TOKENIZER.encode(srcText, true, false);
         long[] indices = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
-        long srcLangToken = TOKENIZER.encode(srcLang).getIds()[0];
+        long srcLangToken = TOKENIZER.encode(srcLang, false, false).getIds()[0];
         indices[0] = srcLangToken;
-        long targLangToken = 256147L;
+        long targLangToken = TOKENIZER.encode(targLang, false, false).getIds()[0];
         ModelParameters parameters = new ModelParameters(12, 16, 64);
         ArrayList<Long> resultTokenList = new ArrayList<>();
         log.info("Data for translate initialized");
