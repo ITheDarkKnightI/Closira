@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Translens</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100vh;
+  overflow: hidden;
+  background: #111827;
+  color: #c8d0dc;
+  font-family: 'Inter', sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── TITLEBAR ── */
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #131c2e;
+  border-bottom: 1px solid #1e2a3d;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  height: 48px;
+  padding: 0 0 0 20px;
+}
+
+.tabs-center {
+  display: flex;
+  gap: 4px;
+  background: #1a2438;
+  border-radius: 10px;
+  padding: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.tab {
+  padding: 7px 20px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.15s;
+  user-select: none;
+  color: #5a6a82;
+  white-space: nowrap;
+}
+
+.tab i { font-size: 15px; }
+.tab:hover { color: #8a9ab2; }
+.tab.active { background: #2d6be4; color: #fff; }
+
+/* Windows-style controls — правий край */
+.win-controls {
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  -webkit-app-region: no-drag;
+  margin-left: auto;
+}
+
+.win-btn {
+  width: 46px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #5a6a82;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  border: none;
+  background: transparent;
+}
+
+.win-btn:hover { background: #1e2a3d; color: #c8d0dc; }
+.win-btn.close:hover { background: #c42b1c; color: #fff; }
+
+/* ── PANELS ── */
+.panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
+.panel.active { display: flex; }
+
+/* ── ПЕРЕКЛАДАЧ ── */
+.translate-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 40px 24px;
+  overflow-y: auto;
+  gap: 18px;
+  background: #111827;
+}
+
+.hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #e8edf5;
+}
+
+.hero-title i { font-size: 30px; color: #2d6be4; }
+
+.hero-sub {
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.65;
+  max-width: 460px;
+}
+
+.text-card {
+  width: 100%;
+  max-width: 740px;
+  background: #1a2438;
+  border: 1px solid #1e2a3d;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid #1e2a3d;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #3a4a62;
+}
+
+.card-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: #1e2a3d;
+  border: 1px solid #2a3a52;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6a7a92;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.card-btn:hover { background: #243044; color: #8a9ab2; }
+.card-btn i { font-size: 14px; }
+
+textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #c8d0dc;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.75;
+  padding: 18px;
+  resize: none;
+  min-height: 130px;
+}
+
+textarea::placeholder { color: #2a3a52; }
+
+.result-area {
+  padding: 18px;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: #2a3a52;
+  min-height: 110px;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-top: 1px solid #1e2a3d;
+}
+
+.char-count { font-size: 11px; color: #2a3a52; }
+.footer-btns { display: flex; gap: 3px; }
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #2a3a52;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.icon-btn:hover { color: #6a9ae4; background: #1e2a3d; }
+
+/* ── ФЛЕШ-КАРТКИ ── */
+.cards-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 40px;
+  background: #111827;
+  gap: 24px;
+}
+
+.study-header { text-align: center; }
+
+.study-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #e8edf5;
+  margin-bottom: 6px;
+}
+
+.study-title i { font-size: 28px; color: #2d6be4; }
+
+.study-counter { font-size: 13px; color: #4a5568; }
+
+.flashcard {
+  width: 100%;
+  max-width: 560px;
+  background: #1a2438;
+  border: 1px solid #1e2a3d;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.flashcard-top {
+  padding: 14px 20px 0;
+}
+
+.flashcard-sublabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #3a4a62;
+}
+
+.flashcard-word {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  font-size: 32px;
+  font-weight: 400;
+  color: #e8edf5;
+  border-bottom: 1px solid #1e2a3d;
+}
+
+.flashcard-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  min-height: 110px;
+}
+
+.show-btn {
+  padding: 11px 32px;
+  background: transparent;
+  border: 2px solid #2d6be4;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d6be4;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.show-btn:hover { background: rgba(45,107,228,0.1); }
+
+.translation-text {
+  font-size: 28px;
+  font-weight: 400;
+  color: #2d6be4;
+  display: none;
+}
+
+.flashcard-controls {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.remove-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: #3a4a62;
+  cursor: pointer;
+  transition: color 0.15s;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  user-select: none;
+  padding: 6px 0;
+}
+
+.remove-btn:hover { color: #e05555; }
+.remove-btn i { font-size: 15px; }
+
+.nav-btns { display: flex; gap: 8px; }
+
+.nav-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #1e2a3d;
+  background: #1a2438;
+  color: #5a6a82;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.nav-btn:hover { border-color: #2d6be4; color: #c8d0dc; }
+.nav-btn.primary { background: #2d6be4; border-color: #2d6be4; color: #fff; }
+.nav-btn.primary:hover { background: #3a78f0; }
+
+.empty-cards {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #2a3a52;
+  font-size: 14px;
+  text-align: center;
+}
+
+.empty-cards i { font-size: 42px; }
+
+/* ── ОВЕРЛЕЙ ── */
+.overlay-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 40px 24px;
+  overflow-y: auto;
+  gap: 18px;
+  background: #111827;
+}
+
+.ov-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.ov-hero-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #e8edf5;
+}
+
+.ov-hero-title i { font-size: 30px; color: #2d6be4; }
+
+.ov-hero-sub {
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.65;
+  max-width: 460px;
+}
+
+.ov-settings { display: flex; gap: 10px; width: 100%; max-width: 740px; }
+
+.sel-wrap { flex: 1; position: relative; }
+
+.sel-wrap select {
+  width: 100%;
+  padding: 9px 32px 9px 12px;
+  background: #1a2438;
+  border: 1px solid #1e2a3d;
+  border-radius: 8px;
+  color: #8a9ab2;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.sel-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #2a3a52;
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.preview-card {
+  width: 100%;
+  max-width: 740px;
+  background: #1a2438;
+  border: 1px solid #1e2a3d;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.preview-inner {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: #2a3a52;
+  font-size: 13px;
+}
+
+.preview-inner i { font-size: 30px; }
+
+.dotlive { width: 6px; height: 6px; border-radius: 50%; background: #2d6be4; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.ov-results { display: flex; gap: 10px; width: 100%; max-width: 740px; }
+
+.ov-box {
+  flex: 1;
+  background: #1a2438;
+  border: 1px solid #1e2a3d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.ov-box-header {
+  padding: 9px 14px;
+  border-bottom: 1px solid #1e2a3d;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #3a4a62;
+}
+
+.ov-box-body { padding: 12px 14px; font-size: 13px; color: #2a3a52; min-height: 70px; line-height: 1.6; }
+.ov-box-body.result { color: #2d6be4; }
+
+.cap-btn {
+  width: 100%;
+  max-width: 740px;
+  padding: 13px;
+  background: #2d6be4;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s;
+}
+
+.cap-btn:hover { background: #3a78f0; }
+
+.shortcut { font-size: 11px; color: #2a3a52; }
+.shortcut kbd { background: #1a2438; border: 1px solid #1e2a3d; border-radius: 4px; padding: 1px 6px; font-size: 11px; color: #3a4a62; }
+
+/* STATUS */
+.statusbar {
+  padding: 6px 24px;
+  border-top: 1px solid #1e2a3d;
+  background: #131c2e;
+  font-size: 11px;
+  color: #2a3a52;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.sdot { width: 5px; height: 5px; border-radius: 50%; background: #2d6be4; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="tabs-center">
+      <div class="tab active" data-panel="translate"><i class="ti ti-language"></i> Перекладач</div>
+      <div class="tab" data-panel="cards"><i class="ti ti-cards"></i> Флеш-картки</div>
+      <div class="tab" data-panel="overlay"><i class="ti ti-scan"></i> Оверлей</div>
+    </div>
+    <div class="win-controls">
+      <div class="win-btn" id="btnMinimize" title="Згорнути"><i class="ti ti-minus"></i></div>
+      <div class="win-btn close" id="btnClose" title="Закрити"><i class="ti ti-x"></i></div>
+    </div>
+  </div>
+
+  <!-- ПЕРЕКЛАДАЧ -->
+  <div class="panel active" id="panel-translate">
+    <div class="translate-body">
+      <div class="hero">
+        <div class="hero-title">
+          <i class="ti ti-clipboard-text" aria-hidden="true"></i>
+          Closira
+        </div>
+        <div class="hero-sub">Скопіюйте будь-що з екрана та вставте сюди. Або натисніть кнопку буфера обміну для миттєвого перекладу.</div>
+      </div>
+
+      <div class="text-card">
+        <div class="card-header">
+          <span class="card-label">Вихідний текст</span>
+          <div class="card-btn" id="clipBtn"><i class="ti ti-clipboard" aria-hidden="true"></i> Читати буфер</div>
+        </div>
+        <textarea id="srcText" placeholder="Вставте скопійований текст сюди (Ctrl+V)…"></textarea>
+        <div class="card-footer">
+          <span class="char-count" id="cc">0 / 5000</span>
+          <div class="footer-btns">
+            <div class="icon-btn" id="clearBtn" title="Очистити"><i class="ti ti-x" aria-hidden="true"></i></div>
+            <div class="icon-btn" id="copySrcBtn" title="Скопіювати"><i class="ti ti-copy" aria-hidden="true"></i></div>
+            <div class="icon-btn" id="saveCardBtn" title="До словника"><i class="ti ti-bookmark" aria-hidden="true"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-card">
+        <div class="card-header">
+          <span class="card-label">Переклад</span>
+          <div class="card-btn" id="copyResultBtn"><i class="ti ti-copy" aria-hidden="true"></i> Скопіювати</div>
+        </div>
+        <div class="result-area" id="resultArea">Переклад з'явиться тут…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ФЛЕШ-КАРТКИ -->
+  <div class="panel" id="panel-cards">
+    <div class="cards-body" id="cardsBody">
+
+      <div id="studyView" style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%">
+        <div class="study-header">
+          <div class="study-title"><i class="ti ti-cards" aria-hidden="true"></i> Study Mode</div>
+          <div class="study-counter" id="studyCounter">Картка 1 з 3</div>
+        </div>
+
+        <div class="flashcard">
+          <div class="flashcard-top">
+            <span class="flashcard-sublabel">Оригінал</span>
+          </div>
+          <div class="flashcard-word" id="cardWord">—</div>
+          <div class="flashcard-bottom">
+            <button class="show-btn" id="showBtn">Показати переклад</button>
+            <div class="translation-text" id="cardTranslation">—</div>
+          </div>
+        </div>
+
+        <div class="flashcard-controls">
+          <button class="remove-btn" id="removeBtn"><i class="ti ti-trash" aria-hidden="true"></i> Видалити</button>
+          <div class="nav-btns">
+            <div class="nav-btn" id="prevBtn" title="Назад"><i class="ti ti-chevron-left" aria-hidden="true"></i></div>
+            <div class="nav-btn" id="shuffleBtn" title="Перемішати"><i class="ti ti-refresh" aria-hidden="true"></i></div>
+            <div class="nav-btn primary" id="nextBtn" title="Далі"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="emptyView" style="display:none" class="empty-cards">
+        <i class="ti ti-cards" aria-hidden="true"></i>
+        <span>Словник порожній</span>
+        <span style="font-size:12px">Перекладіть слово та збережіть кнопкою 🔖</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ОВЕРЛЕЙ -->
+  <div class="panel" id="panel-overlay">
+    <div class="overlay-body">
+      <div class="ov-hero">
+        <div class="ov-hero-title"><i class="ti ti-screenshot" aria-hidden="true"></i> Оверлей екрана</div>
+        <div class="ov-hero-sub">Виділіть область на екрані — текст буде розпізнано та перекладено автоматично.</div>
+      </div>
+      <div class="ov-settings">
+        <div class="sel-wrap">
+          <select>
+            <option>Авто OCR (EN+UK)</option>
+            <option>English</option>
+            <option>Українська</option>
+            <option>日本語</option>
+            <option>中文</option>
+          </select>
+          <i class="ti ti-chevron-down sel-arrow" aria-hidden="true"></i>
+        </div>
+        <div class="sel-wrap">
+          <select>
+            <option>Перекласти на: UA</option>
+            <option>Перекласти на: EN</option>
+            <option>Перекласти на: DE</option>
+          </select>
+          <i class="ti ti-chevron-down sel-arrow" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="preview-card">
+        <div class="card-header">
+          <span class="card-label">Захоплена область</span>
+          <div class="dotlive"></div>
+        </div>
+        <div class="preview-inner">
+          <i class="ti ti-screenshot" aria-hidden="true"></i>
+          <span>Виділіть область екрана</span>
+        </div>
+      </div>
+      <div class="ov-results">
+        <div class="ov-box">
+          <div class="ov-box-header">Розпізнаний текст</div>
+          <div class="ov-box-body">—</div>
+        </div>
+        <div class="ov-box">
+          <div class="ov-box-header">Переклад</div>
+          <div class="ov-box-body result">—</div>
+        </div>
+      </div>
+      <button class="cap-btn"><i class="ti ti-screenshot" aria-hidden="true"></i> Захопити область екрана</button>
+      <div class="shortcut"><kbd>Ctrl+Shift+T</kbd> — швидке захоплення</div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <div class="sdot"></div>
+    <span id="statusText">Готовий до роботи</span>
+  </div>
+</div>
+
+<script>
+// ── ВКЛАДКИ ──────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    var panelId = 'panel-' + tab.getAttribute('data-panel');
+    document.getElementById(panelId).classList.add('active');
+    if (tab.getAttribute('data-panel') === 'cards') renderStudyView();
+  });
+});
+
+// ── КНОПКИ ВІКНА ─────────────────────────────────────────
+document.getElementById('btnMinimize').addEventListener('click', function() {
+  if (window.electronAPI) window.electronAPI.minimize();
+});
+
+document.getElementById('btnClose').addEventListener('click', function() {
+  if (window.electronAPI) window.electronAPI.close();
+});
+
+// ── ПЕРЕКЛАДАЧ ───────────────────────────────────────────
+var srcText = document.getElementById('srcText');
+var resultArea = document.getElementById('resultArea');
+
+srcText.addEventListener('input', function() {
+  document.getElementById('cc').textContent = srcText.value.length + ' / 5000';
+});
+
+document.getElementById('clearBtn').addEventListener('click', function() {
+  srcText.value = '';
+  document.getElementById('cc').textContent = '0 / 5000';
+  resultArea.textContent = 'Переклад з\'явиться тут…';
+  resultArea.style.color = '';
+});
+
+document.getElementById('copySrcBtn').addEventListener('click', function() {
+  if (srcText.value) navigator.clipboard.writeText(srcText.value);
+});
+
+document.getElementById('copyResultBtn').addEventListener('click', function() {
+  var t = resultArea.textContent;
+  if (t && t !== 'Переклад з\'явиться тут…') navigator.clipboard.writeText(t);
+});
+
+document.getElementById('saveCardBtn').addEventListener('click', function() {
+  var src = srcText.value.trim();
+  var tgt = resultArea.textContent;
+  if (!src || tgt === 'Переклад з\'явиться тут…') {
+    setStatus('Немає тексту для збереження');
+    return;
+  }
+  dictionary.push({ src: src, tgt: tgt });
+  setStatus('Збережено до словника ✓');
+});
+
+// ── СЛОВНИК ──────────────────────────────────────────────
+var dictionary = [
+  { src: 'Minimalism', tgt: 'Мінімалізм' },
+  { src: 'Translate',  tgt: 'Перекладати' },
+  { src: 'Dictionary', tgt: 'Словник' }
+];
+var currentIndex = 0;
+
+function renderStudyView() {
+  var studyView = document.getElementById('studyView');
+  var emptyView = document.getElementById('emptyView');
+  if (dictionary.length === 0) {
+    studyView.style.display = 'none';
+    emptyView.style.display = 'flex';
+    return;
+  }
+  studyView.style.display = 'flex';
+  emptyView.style.display = 'none';
+  if (currentIndex >= dictionary.length) currentIndex = 0;
+  showCard(currentIndex);
+}
+
+function showCard(index) {
+  var card = dictionary[index];
+  document.getElementById('cardWord').textContent = card.src;
+  document.getElementById('cardTranslation').textContent = card.tgt;
+  document.getElementById('studyCounter').textContent = 'Картка ' + (index + 1) + ' з ' + dictionary.length;
+  document.getElementById('showBtn').style.display = 'block';
+  document.getElementById('cardTranslation').style.display = 'none';
+}
+
+document.getElementById('showBtn').addEventListener('click', function() {
+  this.style.display = 'none';
+  document.getElementById('cardTranslation').style.display = 'block';
+});
+
+document.getElementById('nextBtn').addEventListener('click', function() {
+  currentIndex = (currentIndex + 1) % dictionary.length;
+  showCard(currentIndex);
+});
+
+document.getElementById('prevBtn').addEventListener('click', function() {
+  currentIndex = (currentIndex - 1 + dictionary.length) % dictionary.length;
+  showCard(currentIndex);
+});
+
+document.getElementById('shuffleBtn').addEventListener('click', function() {
+  for (var i = dictionary.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = dictionary[i]; dictionary[i] = dictionary[j]; dictionary[j] = tmp;
+  }
+  currentIndex = 0;
+  showCard(0);
+});
+
+document.getElementById('removeBtn').addEventListener('click', function() {
+  dictionary.splice(currentIndex, 1);
+  if (dictionary.length === 0) { renderStudyView(); return; }
+  currentIndex = Math.min(currentIndex, dictionary.length - 1);
+  showCard(currentIndex);
+});
+
+// ── СТАТУС ───────────────────────────────────────────────
+function setStatus(msg) {
+  document.getElementById('statusText').textContent = msg;
+  setTimeout(function() {
+    document.getElementById('statusText').textContent = 'Готовий до роботи';
+  }, 2000);
+}
+
+renderStudyView();
+</script>
+</body>
+</html>

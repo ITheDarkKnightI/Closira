@@ -1,0 +1,16 @@
+{
+  "name": "screen-translator",
+  "version": "1.0.0",
+  "description": "Desktop screen translator with OCR",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "dependencies": {
+    "tesseract.js": "^5.1.0"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0"
+  }
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.45);
+      cursor: crosshair;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      letter-spacing: 0.3px;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+
+    .hint span {
+      display: block;
+      font-size: 13px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="hint" id="hint">
+    Выделите область для распознавания
+    <span>Нажмите Escape для отмены</span>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const hint = document.getElementById('hint');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let startX, startY, isDrawing = false;
+
+    function draw(x, y, w, h) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Dark overlay everywhere except selection
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (w !== 0 && h !== 0) {
+        // Clear selection area
+        ctx.clearRect(x, y, w, h);
+
+        // Border
+        ctx.strokeStyle = 'rgba(124, 106, 247, 0.9)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, w, h);
+
+        // Corner accents
+        const cs = 12;
+        ctx.strokeStyle = '#7c6af7';
+        ctx.lineWidth = 3;
+        const corners = [
+          [x, y, cs, 0, 0, cs],
+          [x+w, y, -cs, 0, 0, cs],
+          [x, y+h, cs, 0, 0, -cs],
+          [x+w, y+h, -cs, 0, 0, -cs],
+        ];
+        corners.forEach(([cx, cy, dx1, dy1, dx2, dy2]) => {
+          ctx.beginPath();
+          ctx.moveTo(cx + dx1, cy + dy1);
+          ctx.lineTo(cx, cy);
+          ctx.lineTo(cx + dx2, cy + dy2);
+          ctx.stroke();
+        });
+
+        // Size label
+        ctx.fillStyle = '#7c6af7';
+        ctx.fillRect(x, y - 24, 80, 22);
+        ctx.fillStyle = 'white';
+        ctx.font = '12px JetBrains Mono, monospace';
+        ctx.fillText(`${Math.abs(w)} × ${Math.abs(h)}`, x + 6, y - 8);
+      }
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      startX = e.clientX;
+      startY = e.clientY;
+      isDrawing = true;
+      hint.style.opacity = '0';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      const w = e.clientX - startX;
+      const h = e.clientY - startY;
+      draw(startX, startY, w, h);
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      let x = Math.min(startX, e.clientX);
+      let y = Math.min(startY, e.clientY);
+      let w = Math.abs(e.clientX - startX);
+      let h = Math.abs(e.clientY - startY);
+
+      if (w < 10 || h < 10) {
+        window.electronAPI.sendOverlayCancelled();
+        return;
+      }
+
+      window.electronAPI.sendRegionSelected({ x, y, w, h });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.electronAPI.sendOverlayCancelled();
+      }
+    });
+  </script>
+</body>
+</html>
