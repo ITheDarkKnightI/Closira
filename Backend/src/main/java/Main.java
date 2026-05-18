@@ -21,10 +21,13 @@ public class Main {
                 map
         );
         MachineTranslator translator = new MachineTranslator(config);
-//        while(!text.equals("exit")){
-//          text = scanner.nextLine();
+        while(!text.equals("exit")){
+          text = scanner.nextLine();
+            long startTime = System.currentTimeMillis();
             text = translator.translate(text, src, targ);
             System.out.println("translated text: " + text);
-//        }
+            long endTime = System.currentTimeMillis();
+            System.out.println("Time: " + (endTime - startTime) + " miliSec");
+        }
     }
 }
