@@ -1,5 +1,5 @@
 {
-  "name": "screen-translator",
+  "name": "Closira",
   "version": "1.0.0",
   "description": "Desktop screen translator with OCR",
   "main": "src/main.js",
