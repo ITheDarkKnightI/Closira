@@ -1,5 +1,5 @@
 {
-  "name": "Closira",
+  "name": "closira",
   "version": "1.0.0",
   "description": "Desktop screen translator with OCR",
   "main": "src/main.js",

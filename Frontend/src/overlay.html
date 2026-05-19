@@ -75,13 +75,13 @@
         ctx.clearRect(x, y, w, h);
 
         
-        ctx.strokeStyle = 'rgba(124, 106, 247, 0.9)';
+        ctx.strokeStyle = '#2d6be4';
         ctx.lineWidth = 2;
         ctx.strokeRect(x, y, w, h);
 
         
         const cs = 12;
-        ctx.strokeStyle = '#7c6af7';
+        ctx.strokeStyle = '#2d6be4';
         ctx.lineWidth = 3;
         const corners = [
           [x, y, cs, 0, 0, cs],
@@ -98,10 +98,10 @@
         });
 
        
-        ctx.fillStyle = '#7c6af7';
+        ctx.fillStyle = '#2d6be4';
         ctx.fillRect(x, y - 24, 80, 22);
         ctx.fillStyle = 'white';
-        ctx.font = '12px JetBrains Mono, monospace';
+        ctx.font = '12px monospace';
         ctx.fillText(`${Math.abs(w)} × ${Math.abs(h)}`, x + 6, y - 8);
       }
     }
