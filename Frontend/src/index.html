@@ -3,90 +3,44 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Translens</title>
+<title>Closira</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body {
-  height: 100vh;
-  overflow: hidden;
-  background: #111827;
-  color: #c8d0dc;
-  font-family: 'Inter', sans-serif;
-}
-
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
+html, body { height: 100vh; overflow: hidden; background: #111827; color: #c8d0dc; font-family: 'Inter', sans-serif; font-size: 25px; }
+.app { display: flex; flex-direction: column; height: 100vh; }
 
 /* ── TITLEBAR ── */
 .titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #131c2e;
-  border-bottom: 1px solid #1e2a3d;
-  flex-shrink: 0;
-  -webkit-app-region: drag;
-  height: 48px;
-  padding: 0 0 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #131c2e; border-bottom: 1px solid #1e2a3d;
+  flex-shrink: 0; -webkit-app-region: drag; height: 48px; padding: 0 0 0 16px;
 }
-
 .tabs-center {
-  display: flex;
-  gap: 4px;
-  background: #1a2438;
-  border-radius: 10px;
-  padding: 4px;
-  -webkit-app-region: no-drag;
+  display: flex; gap: 2px; background: #1a2438;
+  border-radius: 10px; padding: 3px; -webkit-app-region: no-drag;
 }
-
 .tab {
-  padding: 7px 20px;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  transition: all 0.15s;
-  user-select: none;
-  color: #5a6a82;
-  white-space: nowrap;
+  padding: clamp(5px,1vw,7px) clamp(8px,2vw,20px);
+  border-radius: 7px; font-size: clamp(15px,1.2vw,13px); font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; gap: clamp(4px,0.6vw,7px);
+  transition: all 0.15s; user-select: none; color: #5a6a82; white-space: nowrap;
 }
-
-.tab i { font-size: 15px; }
+.tab i { font-size: clamp(15px,1.4vw,15px); }
+.tab span { display: inline; }
 .tab:hover { color: #8a9ab2; }
 .tab.active { background: #2d6be4; color: #fff; }
 
-/* Windows-style controls — правий край */
-.win-controls {
-  display: flex;
-  align-items: stretch;
-  height: 48px;
-  -webkit-app-region: no-drag;
-  margin-left: auto;
-}
 
+@media (max-width: 580px) { .tab span { display: none; } .tab { padding: 6px 10px; } }
+
+.win-controls { display: flex; align-items: stretch; height: 48px; -webkit-app-region: no-drag; margin-left: auto; flex-shrink: 0; }
 .win-btn {
-  width: 46px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: #5a6a82;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  border: none;
-  background: transparent;
+  width: clamp(36px,4vw,46px); height: 48px; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(15px,1.4vw,16px); color: #5a6a82; cursor: pointer;
+  transition: background 0.12s, color 0.12s; border: none; background: transparent;
 }
-
 .win-btn:hover { background: #1e2a3d; color: #c8d0dc; }
 .win-btn.close:hover { background: #c42b1c; color: #fff; }
 
@@ -96,439 +50,228 @@ html, body {
 
 /* ── ПЕРЕКЛАДАЧ ── */
 .translate-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 40px 24px;
-  overflow-y: auto;
-  gap: 18px;
-  background: #111827;
+  flex: 1; display: flex; flex-direction: column;
+  padding: clamp(16px,2vw,24px) clamp(16px,3vw,32px) 12px;
+  overflow-y: hidden; gap: clamp(8px,1.2vw,14px); background: #111827;
 }
+.hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.hero-title { display: flex; align-items: center; gap: 10px; font-size: clamp(18px,2.5vw,26px); font-weight: 600; color: #e8edf5; }
+.hero-title i { font-size: clamp(20px,2.6vw,28px); color: #2d6be4; }
+.hero-sub { font-size: clamp(15px,1.1vw,13px); color: #4a5568; line-height: 1.6; max-width: 460px; }
 
-.hero {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
+.lang-row { display: flex; align-items: center; gap: 8px; width: 100%; }
+.lang-sel-wrap { flex: 1; position: relative; min-width: 0; }
+.lang-sel-wrap select {
+  width: 100%; padding: clamp(6px,0.8vw,8px) 28px clamp(6px,0.8vw,8px) 10px;
+  background: #1a2438; border: 1px solid #1e2a3d; border-radius: 8px;
+  color: #c8d0dc; font-family: 'Inter', sans-serif; font-size: clamp(15px,1.2vw,13px);
+  outline: none; cursor: pointer; appearance: none;
 }
-
-.hero-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 28px;
-  font-weight: 600;
-  color: #e8edf5;
+.lang-sel-wrap select:focus { border-color: #2d6be4; }
+.lang-arrow { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #8a9ab2; font-size: 12px; pointer-events: none; }
+.swap-btn {
+  width: clamp(28px,3vw,36px); height: clamp(28px,3vw,36px); border-radius: 50%;
+  border: 1px solid #1e2a3d; background: #1a2438; color: #5a6a82; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(15px,1.4vw,16px); transition: all 0.15s; flex-shrink: 0;
 }
+.swap-btn:hover { border-color: #2d6be4; color: #2d6be4; }
 
-.hero-title i { font-size: 30px; color: #2d6be4; }
-
-.hero-sub {
-  font-size: 13px;
-  color: #4a5568;
-  line-height: 1.65;
-  max-width: 460px;
-}
-
-.text-card {
-  width: 100%;
-  max-width: 740px;
-  background: #1a2438;
-  border: 1px solid #1e2a3d;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  border-bottom: 1px solid #1e2a3d;
-}
-
-.card-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #3a4a62;
-}
-
+.text-card { width: 100%; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: clamp(8px,1vw,11px) clamp(10px,1.5vw,16px); border-bottom: 1px solid #1e2a3d; gap: 8px; }
+.card-label { font-size: clamp(9px,1vw,11px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; white-space: nowrap; }
 .card-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 6px 14px;
-  background: #1e2a3d;
-  border: 1px solid #2a3a52;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #6a7a92;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
+  display: flex; align-items: center; gap: 5px; padding: clamp(4px,0.5vw,5px) clamp(8px,1.2vw,12px);
+  background: #1e2a3d; border: 1px solid #8a9ab2; border-radius: 7px;
+  font-size: clamp(10px,1.1vw,12px); font-weight: 500; color: #6a7a92; cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-
 .card-btn:hover { background: #243044; color: #8a9ab2; }
-.card-btn i { font-size: 14px; }
+.card-btn i { font-size: clamp(16px,1.3vw,14px); }
+
+/* Помітна кнопка збереження */
+.save-card-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: clamp(4px,0.5vw,6px) clamp(8px,1.2vw,14px);
+  background: #1a3a2a; border: 1px solid #2a6a4a; border-radius: 7px;
+  font-size: clamp(10px,1.1vw,12px); font-weight: 500; color: #4adf8a;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.save-card-btn:hover { background: #1e4a34; border-color: #4adf8a; }
+.save-card-btn i { font-size: clamp(16px,1.3vw,14px); }
 
 textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #c8d0dc;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.75;
-  padding: 18px;
-  resize: none;
-  min-height: 130px;
+  width: 100%; background: transparent; border: none; outline: none;
+  color: #c8d0dc; font-family: 'Inter', sans-serif;
+  font-size: clamp(16px,1.3vw,14px); font-weight: 300; line-height: 1.75;
+  padding: clamp(10px,1.2vw,16px); resize: none; flex: 1; min-height: 40px;
 }
-
-textarea::placeholder { color: #2a3a52; }
-
+textarea::placeholder { color: #8a9ab2; }
 .result-area {
-  padding: 18px;
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 1.75;
-  color: #2a3a52;
-  min-height: 110px;
+  padding: clamp(10px,1.2vw,16px); font-size: clamp(16px,1.3vw,14px);
+  font-weight: 300; line-height: 1.75; color: #6a7a92; flex: 1; min-height: 30px; overflow-y: hidden;
 }
-
-.card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  border-top: 1px solid #1e2a3d;
-}
-
-.char-count { font-size: 11px; color: #2a3a52; }
-.footer-btns { display: flex; gap: 3px; }
-
+.result-area.has-text { color: #6a7a92; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding: clamp(5px,0.7vw,7px) clamp(8px,1.2vw,12px); border-top: 1px solid #1e2a3d; gap: 6px; }
+.char-count { font-size: clamp(9px,1vw,11px); color: #8a9ab2; white-space: nowrap; }
+.footer-btns { display: flex; gap: 2px; }
 .icon-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: #2a3a52;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  transition: all 0.15s;
+  width: clamp(24px,2.5vw,28px); height: clamp(24px,2.5vw,28px); border-radius: 6px; border: none;
+  background: transparent; color: #8a9ab2; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; font-size: clamp(16px,1.3vw,14px); transition: all 0.15s;
 }
-
 .icon-btn:hover { color: #6a9ae4; background: #1e2a3d; }
+.translate-btn {
+  width: 100%; padding: clamp(8px,1vw,11px);
+  background: #2d6be4; border: none; border-radius: 10px; color: #fff;
+  font-family: 'Inter', sans-serif; font-size: clamp(16px,1.2vw,13px);
+  font-weight: 500; cursor: pointer; transition: background 0.15s;
+}
+.translate-btn:hover { background: #3a78f0; }
+.translate-btn:disabled { background: #1e2a3d; color: #8a9ab2; cursor: not-allowed; }
 
 /* ── ФЛЕШ-КАРТКИ ── */
 .cards-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 40px;
-  background: #111827;
-  gap: 24px;
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: clamp(16px,3vw,30px) clamp(16px,4vw,40px);
+  background: #111827; gap: clamp(16px,2vw,24px);
 }
-
 .study-header { text-align: center; }
-
-.study-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-size: 26px;
-  font-weight: 600;
-  color: #e8edf5;
-  margin-bottom: 6px;
-}
-
-.study-title i { font-size: 28px; color: #2d6be4; }
-
-.study-counter { font-size: 13px; color: #4a5568; }
-
-.flashcard {
-  width: 100%;
-  max-width: 560px;
-  background: #1a2438;
-  border: 1px solid #1e2a3d;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.flashcard-top {
-  padding: 14px 20px 0;
-}
-
-.flashcard-sublabel {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #3a4a62;
-}
-
-.flashcard-word {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 20px;
-  font-size: 32px;
-  font-weight: 400;
-  color: #e8edf5;
-  border-bottom: 1px solid #1e2a3d;
-}
-
-.flashcard-bottom {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-  min-height: 110px;
-}
-
+.study-title { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: clamp(18px,2.5vw,26px); font-weight: 600; color: #e8edf5; margin-bottom: 6px; }
+.study-title i { font-size: clamp(20px,2.6vw,28px); color: #2d6be4; }
+.study-counter { font-size: clamp(15px,1.1vw,13px); color: #4a5568; }
+.flashcard { width: 100%; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.flashcard-top { padding: clamp(10px,1.2vw,14px) 20px 0; }
+.flashcard-sublabel { font-size: clamp(9px,1vw,11px); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #8a9ab2; }
+.flashcard-word { display: flex; align-items: center; justify-content: center; padding: 20px; font-size: clamp(22px,3.5vw,32px); font-weight: 400; color: #e8edf5; border-bottom: 1px solid #1e2a3d; flex: 1; word-break: break-word; text-align: center; }
+.flashcard-bottom { display: flex; align-items: center; justify-content: center; padding: 20px; min-height: clamp(60px,8vh,90px); flex: 1; }
 .show-btn {
-  padding: 11px 32px;
-  background: transparent;
-  border: 2px solid #2d6be4;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #2d6be4;
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-  font-family: 'Inter', sans-serif;
+  padding: clamp(8px,1vw,11px) clamp(20px,3vw,32px); background: transparent;
+  border: 2px solid #2d6be4; border-radius: 30px; font-size: clamp(16px,1.3vw,14px);
+  font-weight: 500; color: #2d6be4; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
 }
-
 .show-btn:hover { background: rgba(45,107,228,0.1); }
-
-.translation-text {
-  font-size: 28px;
-  font-weight: 400;
-  color: #2d6be4;
-  display: none;
-}
-
-.flashcard-controls {
-  width: 100%;
-  max-width: 560px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
+.translation-text { font-size: clamp(20px,3vw,28px); font-weight: 400; color: #2d6be4; display: none; }
+.flashcard-controls { width: 100%; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .remove-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13px;
-  color: #3a4a62;
-  cursor: pointer;
-  transition: color 0.15s;
-  background: none;
-  border: none;
-  font-family: 'Inter', sans-serif;
-  user-select: none;
-  padding: 6px 0;
+  display: flex; align-items: center; gap: 6px; font-size: clamp(15px,1.2vw,13px);
+  color: #8a9ab2; cursor: pointer; transition: color 0.15s; background: none;
+  border: none; font-family: 'Inter', sans-serif; user-select: none; padding: 6px 0;
 }
-
 .remove-btn:hover { color: #e05555; }
-.remove-btn i { font-size: 15px; }
-
-.nav-btns { display: flex; gap: 8px; }
-
+.nav-btns { display: flex; gap: clamp(6px,0.8vw,8px); }
 .nav-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1px solid #1e2a3d;
-  background: #1a2438;
-  color: #5a6a82;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  transition: all 0.15s;
-  user-select: none;
+  width: clamp(34px,4vw,42px); height: clamp(34px,4vw,42px); border-radius: 50%;
+  border: 1px solid #1e2a3d; background: #1a2438; color: #5a6a82; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(15px,1.5vw,16px); transition: all 0.15s;
 }
-
 .nav-btn:hover { border-color: #2d6be4; color: #c8d0dc; }
 .nav-btn.primary { background: #2d6be4; border-color: #2d6be4; color: #fff; }
 .nav-btn.primary:hover { background: #3a78f0; }
-
-.empty-cards {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: #2a3a52;
-  font-size: 14px;
-  text-align: center;
-}
-
-.empty-cards i { font-size: 42px; }
+.empty-cards { display: flex; flex-direction: column; align-items: center; gap: 12px; color: #8a9ab2; font-size: clamp(16px,1.3vw,14px); text-align: center; }
+.empty-cards i { font-size: clamp(32px,4vw,42px); }
 
 /* ── ОВЕРЛЕЙ ── */
 .overlay-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px 40px 24px;
-  overflow-y: auto;
-  gap: 18px;
-  background: #111827;
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: clamp(16px,2.5vw,28px) clamp(16px,3vw,32px) 16px;
+  overflow-y: hidden; gap: clamp(10px,1.5vw,14px); background: #111827;
 }
+.ov-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ov-hero-title { display: flex; align-items: center; gap: 10px; font-size: clamp(16px,2vw,22px); font-weight: 600; color: #e8edf5; }
+.ov-hero-title i { font-size: clamp(18px,2.2vw,24px); color: #2d6be4; }
+.ov-hero-sub { font-size: clamp(15px,1.1vw,12px); color: #4a5568; line-height: 1.5; max-width: 500px; }
 
-.ov-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+/* Два стовпці в оверлеї */
+.ov-layout { display: flex; gap: clamp(10px,1.5vw,16px); width: 100%; align-items: flex-start; flex: 1; min-height: 0; }
+.ov-left { flex: 1; display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); min-width: 0; overflow-y: hidden; }
+.ov-right { width: clamp(180px,25vw,240px); display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); flex-shrink: 0; }
 
-.ov-hero-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 28px;
-  font-weight: 600;
-  color: #e8edf5;
-}
-
-.ov-hero-title i { font-size: 30px; color: #2d6be4; }
-
-.ov-hero-sub {
-  font-size: 13px;
-  color: #4a5568;
-  line-height: 1.65;
-  max-width: 460px;
-}
-
-.ov-settings { display: flex; gap: 10px; width: 100%; max-width: 740px; }
-
-.sel-wrap { flex: 1; position: relative; }
-
-.sel-wrap select {
-  width: 100%;
-  padding: 9px 32px 9px 12px;
-  background: #1a2438;
-  border: 1px solid #1e2a3d;
-  border-radius: 8px;
-  color: #8a9ab2;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-}
-
-.sel-arrow {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #2a3a52;
-  font-size: 13px;
-  pointer-events: none;
-}
-
-.preview-card {
-  width: 100%;
-  max-width: 740px;
-  background: #1a2438;
-  border: 1px solid #1e2a3d;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
+.preview-card { width: 100%; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 12px; overflow: hidden; }
+.preview-header { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid #1e2a3d; }
 .preview-inner {
-  height: 150px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 10px;
-  color: #2a3a52;
-  font-size: 13px;
+  height: clamp(80px,12vh,130px); display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px; color: #8a9ab2; font-size: clamp(15px,1.1vw,13px); overflow: hidden;
 }
-
-.preview-inner i { font-size: 30px; }
-
+.preview-inner i { font-size: clamp(22px,2.5vw,30px); }
+.preview-inner img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
 .dotlive { width: 6px; height: 6px; border-radius: 50%; background: #2d6be4; animation: blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-.ov-results { display: flex; gap: 10px; width: 100%; max-width: 740px; }
+.ov-results { display: flex; gap: 8px; width: 100%; }
+.ov-box { flex: 1; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 10px; overflow: hidden; min-width: 0; }
+.ov-box-header { padding: 8px 12px; border-bottom: 1px solid #1e2a3d; font-size: clamp(9px,1vw,10px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; display: flex; justify-content: space-between; align-items: center; }
+.ov-box-body { padding: 10px 12px; font-size: clamp(15px,1.2vw,13px); color: #8a9ab2; min-height: clamp(40px,6vh,60px); line-height: 1.6; word-break: break-word; }
+.ov-box-body.has-text { color: #c8d0dc; }
+.ov-box-body.result.has-text { color: #2d6be4; }
 
-.ov-box {
-  flex: 1;
-  background: #1a2438;
-  border: 1px solid #1e2a3d;
-  border-radius: 10px;
-  overflow: hidden;
+/* Права колонка — налаштування */
+.settings-card { background: #1a2438; border: 1px solid #1e2a3d; border-radius: 12px; overflow: hidden; }
+.settings-header { padding: 9px 14px; border-bottom: 1px solid #1e2a3d; font-size: clamp(9px,1vw,10px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; }
+.settings-body { padding: clamp(8px,1.2vw,12px); display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); }
+.setting-row { display: flex; flex-direction: column; gap: 4px; }
+.setting-label { font-size: clamp(10px,1vw,11px); color: #8a9ab2; }
+.setting-select {
+  width: 100%; padding: clamp(5px,0.7vw,7px) 28px clamp(5px,0.7vw,7px) 10px;
+  background: #131c2e; border: 1px solid #1e2a3d; border-radius: 7px;
+  color: #c8d0dc; font-family: 'Inter', sans-serif; font-size: clamp(15px,1.1vw,12px);
+  outline: none; cursor: pointer; appearance: none; position: relative;
 }
+.setting-select:focus { border-color: #2d6be4; }
+.sel-wrap { position: relative; }
+.sel-arrow { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #8a9ab2; font-size: 12px; pointer-events: none; }
 
-.ov-box-header {
-  padding: 9px 14px;
-  border-bottom: 1px solid #1e2a3d;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #3a4a62;
+/* Гаряча клавіша */
+.hotkey-row { display: flex; flex-direction: column; gap: 6px; }
+.hotkey-display {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: clamp(5px,0.7vw,8px) 10px; background: #131c2e;
+  border: 1px solid #1e2a3d; border-radius: 7px; cursor: pointer; transition: border-color 0.15s;
 }
+.hotkey-display:hover { border-color: #2d6be4; }
+.hotkey-display.recording { border-color: #e05555; background: #1e1020; }
+.hotkey-keys { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px,1.1vw,12px); color: #2d6be4; }
+.hotkey-hint { font-size: clamp(9px,0.9vw,10px); color: #8a9ab2; }
 
-.ov-box-body { padding: 12px 14px; font-size: 13px; color: #2a3a52; min-height: 70px; line-height: 1.6; }
-.ov-box-body.result { color: #2d6be4; }
-
+/* Кнопки дій */
+.ov-actions { display: flex; flex-direction: column; gap: 6px; }
 .cap-btn {
-  width: 100%;
-  max-width: 740px;
-  padding: 13px;
-  background: #2d6be4;
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.15s;
+  width: 100%; padding: clamp(8px,1vw,11px); background: #2d6be4; border: none;
+  border-radius: 9px; color: #fff; font-family: 'Inter', sans-serif;
+  font-size: clamp(15px,1.2vw,13px); font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px; transition: background 0.15s;
 }
-
 .cap-btn:hover { background: #3a78f0; }
+.save-ov-btn {
+  width: 100%; padding: clamp(7px,0.9vw,9px); background: #1a3a2a;
+  border: 1px solid #2a6a4a; border-radius: 9px; color: #4adf8a;
+  font-family: 'Inter', sans-serif; font-size: clamp(15px,1.2vw,12px); font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 7px; transition: all 0.15s;
+}
+.save-ov-btn:hover { background: #1e4a34; border-color: #4adf8a; }
+.shortcut-display { font-size: clamp(10px,1vw,11px); color: #8a9ab2; text-align: center; }
+.shortcut-display kbd { background: #1a2438; border: 1px solid #1e2a3d; border-radius: 4px; padding: 1px 5px; font-size: clamp(9px,1vw,10px); color: #8a9ab2; }
 
-.shortcut { font-size: 11px; color: #2a3a52; }
-.shortcut kbd { background: #1a2438; border: 1px solid #1e2a3d; border-radius: 4px; padding: 1px 6px; font-size: 11px; color: #3a4a62; }
+/* PROGRESS BAR */
+.progress-bar { width: 100%; height: 3px; background: #1e2a3d; border-radius: 2px; overflow: hidden; display: none; }
+.progress-fill { height: 100%; background: #2d6be4; border-radius: 2px; transition: width 0.3s; width: 0%; }
 
 /* STATUS */
 .statusbar {
-  padding: 6px 24px;
-  border-top: 1px solid #1e2a3d;
-  background: #131c2e;
-  font-size: 11px;
-  color: #2a3a52;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
+  padding: 5px clamp(16px,2vw,24px); border-top: 1px solid #1e2a3d; background: #131c2e;
+  font-size: clamp(10px,1vw,11px); color: #8a9ab2; display: flex; align-items: center; gap: 7px; flex-shrink: 0;
 }
-
 .sdot { width: 5px; height: 5px; border-radius: 50%; background: #2d6be4; }
+.sdot.error { background: #e05555; }
+.sdot.ok { background: #34c759; }
+
+/* hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+}
 </style>
 </head>
 <body>
@@ -537,9 +280,9 @@ textarea::placeholder { color: #2a3a52; }
   <!-- TITLEBAR -->
   <div class="titlebar">
     <div class="tabs-center">
-      <div class="tab active" data-panel="translate"><i class="ti ti-language"></i> Перекладач</div>
-      <div class="tab" data-panel="cards"><i class="ti ti-cards"></i> Флеш-картки</div>
-      <div class="tab" data-panel="overlay"><i class="ti ti-scan"></i> Оверлей</div>
+      <div class="tab active" data-panel="translate"><i class="ti ti-language"></i><span> Перекладач</span></div>
+      <div class="tab" data-panel="cards"><i class="ti ti-cards"></i><span> Картки</span></div>
+      <div class="tab" data-panel="overlay"><i class="ti ti-scan"></i><span> Оверлей</span></div>
     </div>
     <div class="win-controls">
       <div class="win-btn" id="btnMinimize" title="Згорнути"><i class="ti ti-minus"></i></div>
@@ -551,25 +294,42 @@ textarea::placeholder { color: #2a3a52; }
   <div class="panel active" id="panel-translate">
     <div class="translate-body">
       <div class="hero">
-        <div class="hero-title">
-          <i class="ti ti-clipboard-text" aria-hidden="true"></i>
-          Closira
+        <div class="hero-title"><i class="ti ti-clipboard-text"></i> Closira</div>
+        <div class="hero-sub">Введіть текст або вставте скопійований вміст з екрана для перекладу.</div>
+      </div>
+
+      <div class="lang-row">
+        <div class="lang-sel-wrap">
+          <select id="srcLang">
+            <option value="auto">Авто</option>
+            <option value="en">English</option>
+            <option value="uk">Українська</option>
+            <option value="ru">Русский</option>
+          </select>
+          <i class="ti ti-chevron-down lang-arrow"></i>
         </div>
-        <div class="hero-sub">Скопіюйте будь-що з екрана та вставте сюди. Або натисніть кнопку буфера обміну для миттєвого перекладу.</div>
+        <div class="swap-btn" id="swapBtn"><i class="ti ti-arrows-exchange"></i></div>
+        <div class="lang-sel-wrap">
+          <select id="tgtLang">
+            <option value="uk">Українська</option>
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+          </select>
+          <i class="ti ti-chevron-down lang-arrow"></i>
+        </div>
       </div>
 
       <div class="text-card">
         <div class="card-header">
           <span class="card-label">Вихідний текст</span>
-          <div class="card-btn" id="clipBtn"><i class="ti ti-clipboard" aria-hidden="true"></i> Читати буфер</div>
+          <div class="card-btn" id="clipBtn"><i class="ti ti-clipboard"></i> Читати буфер</div>
         </div>
-        <textarea id="srcText" placeholder="Вставте скопійований текст сюди (Ctrl+V)…"></textarea>
+        <textarea id="srcText" placeholder="Введіть або вставте текст (Ctrl+V)…"></textarea>
         <div class="card-footer">
-          <span class="char-count" id="cc">0 / 5000</span>
+          <span class="char-count" id="charCount">0 / 5000</span>
           <div class="footer-btns">
-            <div class="icon-btn" id="clearBtn" title="Очистити"><i class="ti ti-x" aria-hidden="true"></i></div>
-            <div class="icon-btn" id="copySrcBtn" title="Скопіювати"><i class="ti ti-copy" aria-hidden="true"></i></div>
-            <div class="icon-btn" id="saveCardBtn" title="До словника"><i class="ti ti-bookmark" aria-hidden="true"></i></div>
+            <div class="icon-btn" id="clearBtn" title="Очистити"><i class="ti ti-x"></i></div>
+            <div class="icon-btn" id="copySrcBtn" title="Скопіювати"><i class="ti ti-copy"></i></div>
           </div>
         </div>
       </div>
@@ -577,50 +337,48 @@ textarea::placeholder { color: #2a3a52; }
       <div class="text-card">
         <div class="card-header">
           <span class="card-label">Переклад</span>
-          <div class="card-btn" id="copyResultBtn"><i class="ti ti-copy" aria-hidden="true"></i> Скопіювати</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <div class="card-btn" id="copyResultBtn"><i class="ti ti-copy"></i> Копіювати</div>
+            <div class="save-card-btn" id="saveCardBtn"><i class="ti ti-bookmark-plus"></i> До словника</div>
+          </div>
         </div>
         <div class="result-area" id="resultArea">Переклад з'явиться тут…</div>
       </div>
+
+      <button class="translate-btn" id="translateBtn">Перекласти</button>
     </div>
   </div>
 
   <!-- ФЛЕШ-КАРТКИ -->
   <div class="panel" id="panel-cards">
-    <div class="cards-body" id="cardsBody">
-
-      <div id="studyView" style="display:flex;flex-direction:column;align-items:center;gap:24px;width:100%">
+    <div class="cards-body">
+      <div id="studyView" style="display:flex;flex-direction:column;align-items:center;gap:clamp(10px,1.5vw,20px);width:100%;flex:1;min-height:0">
         <div class="study-header">
-          <div class="study-title"><i class="ti ti-cards" aria-hidden="true"></i> Study Mode</div>
-          <div class="study-counter" id="studyCounter">Картка 1 з 3</div>
+          <div class="study-title"><i class="ti ti-cards"></i> Study Mode</div>
+          <div class="study-counter" id="studyCounter">Картка 1 з 0</div>
         </div>
-
         <div class="flashcard">
-          <div class="flashcard-top">
-            <span class="flashcard-sublabel">Оригінал</span>
-          </div>
+          <div class="flashcard-top"><span class="flashcard-sublabel">Оригінал</span></div>
           <div class="flashcard-word" id="cardWord">—</div>
           <div class="flashcard-bottom">
             <button class="show-btn" id="showBtn">Показати переклад</button>
             <div class="translation-text" id="cardTranslation">—</div>
           </div>
         </div>
-
         <div class="flashcard-controls">
-          <button class="remove-btn" id="removeBtn"><i class="ti ti-trash" aria-hidden="true"></i> Видалити</button>
+          <button class="remove-btn" id="removeBtn"><i class="ti ti-trash"></i> Видалити</button>
           <div class="nav-btns">
-            <div class="nav-btn" id="prevBtn" title="Назад"><i class="ti ti-chevron-left" aria-hidden="true"></i></div>
-            <div class="nav-btn" id="shuffleBtn" title="Перемішати"><i class="ti ti-refresh" aria-hidden="true"></i></div>
-            <div class="nav-btn primary" id="nextBtn" title="Далі"><i class="ti ti-chevron-right" aria-hidden="true"></i></div>
+            <div class="nav-btn" id="prevBtn"><i class="ti ti-chevron-left"></i></div>
+            <div class="nav-btn" id="shuffleBtn"><i class="ti ti-refresh"></i></div>
+            <div class="nav-btn primary" id="nextBtn"><i class="ti ti-chevron-right"></i></div>
           </div>
         </div>
       </div>
-
       <div id="emptyView" style="display:none" class="empty-cards">
-        <i class="ti ti-cards" aria-hidden="true"></i>
+        <i class="ti ti-cards"></i>
         <span>Словник порожній</span>
-        <span style="font-size:12px">Перекладіть слово та збережіть кнопкою 🔖</span>
+        <span style="font-size:12px">Перекладіть слово та збережіть кнопкою «До словника»</span>
       </div>
-
     </div>
   </div>
 
@@ -628,144 +386,256 @@ textarea::placeholder { color: #2a3a52; }
   <div class="panel" id="panel-overlay">
     <div class="overlay-body">
       <div class="ov-hero">
-        <div class="ov-hero-title"><i class="ti ti-screenshot" aria-hidden="true"></i> Оверлей екрана</div>
-        <div class="ov-hero-sub">Виділіть область на екрані — текст буде розпізнано та перекладено автоматично.</div>
+        <div class="ov-hero-title"><i class="ti ti-screenshot"></i> Оверлей екрана</div>
+        <div class="ov-hero-sub">Захопіть область — текст розпізнається і переклад з'явиться у спливаючому вікні.</div>
       </div>
-      <div class="ov-settings">
-        <div class="sel-wrap">
-          <select>
-            <option>Авто OCR (EN+UK)</option>
-            <option>English</option>
-            <option>Українська</option>
-            <option>日本語</option>
-            <option>中文</option>
-          </select>
-          <i class="ti ti-chevron-down sel-arrow" aria-hidden="true"></i>
+
+      <div class="ov-layout">
+        <!-- Ліва колонка — прев'ю + результати -->
+        <div class="ov-left">
+          <div class="preview-card">
+            <div class="preview-header">
+              <span class="card-label">Захоплена область</span>
+              <div class="dotlive"></div>
+            </div>
+            <div class="preview-inner" id="previewInner">
+              <i class="ti ti-screenshot"></i>
+              <span id="previewHint">Виділіть область екрана</span>
+              <img id="previewImg" alt="preview" />
+            </div>
+          </div>
+
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <div class="ov-results">
+            <div class="ov-box">
+              <div class="ov-box-header">
+                <span>Текст</span>
+                <div class="icon-btn" id="copyOcrBtn" style="width:20px;height:20px;font-size:11px"><i class="ti ti-copy"></i></div>
+              </div>
+              <div class="ov-box-body" id="ocrResult">—</div>
+            </div>
+            <div class="ov-box">
+              <div class="ov-box-header">
+                <span>Переклад</span>
+                <div class="icon-btn" id="copyOvTransBtn" style="width:20px;height:20px;font-size:11px"><i class="ti ti-copy"></i></div>
+              </div>
+              <div class="ov-box-body result" id="ovTransResult">—</div>
+            </div>
+          </div>
         </div>
-        <div class="sel-wrap">
-          <select>
-            <option>Перекласти на: UA</option>
-            <option>Перекласти на: EN</option>
-            <option>Перекласти на: DE</option>
-          </select>
-          <i class="ti ti-chevron-down sel-arrow" aria-hidden="true"></i>
+
+        <!-- Права колонка — налаштування -->
+        <div class="ov-right">
+          <div class="settings-card">
+            <div class="settings-header">Налаштування</div>
+            <div class="settings-body">
+
+              <div class="setting-row">
+                <div class="setting-label">Мова OCR</div>
+                <div class="sel-wrap">
+                  <select class="setting-select" id="ocrLang">
+                    <option value="eng+ukr">Авто (EN+UK)</option>
+                    <option value="eng">English</option>
+                    <option value="ukr">Українська</option>
+                    <option value="rus">Русский</option>
+                  </select>
+                  <i class="ti ti-chevron-down sel-arrow"></i>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-label">Перекласти на</div>
+                <div class="sel-wrap">
+                  <select class="setting-select" id="ovTgtLang">
+                    <option value="uk">Українська</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                  </select>
+                  <i class="ti ti-chevron-down sel-arrow"></i>
+                </div>
+              </div>
+
+              <div class="hotkey-row">
+                <div class="setting-label">Гаряча клавіша захоплення</div>
+                <div class="hotkey-display" id="hotkeyDisplay" title="Змінити">
+                  <span class="hotkey-keys" id="hotkeyKeys">Ctrl+Shift+T</span>
+                  <span class="hotkey-hint" id="hotkeyHint">Змінити</span>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-label">Popup вікно</div>
+                <div class="sel-wrap">
+                  <select class="setting-select" id="popupMode">
+                    <option value="always">Завжди показувати</option>
+                    <option value="minimized">Тільки якщо згорнуто</option>
+                    <option value="never">Не показувати</option>
+                  </select>
+                  <i class="ti ti-chevron-down sel-arrow"></i>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="ov-actions">
+            <div class="cap-btn" id="captureBtn"><i class="ti ti-screenshot"></i> Захопити область</div>
+            <div class="save-ov-btn" id="saveOvBtn"><i class="ti ti-bookmark-plus"></i> До словника</div>
+          </div>
         </div>
       </div>
-      <div class="preview-card">
-        <div class="card-header">
-          <span class="card-label">Захоплена область</span>
-          <div class="dotlive"></div>
-        </div>
-        <div class="preview-inner">
-          <i class="ti ti-screenshot" aria-hidden="true"></i>
-          <span>Виділіть область екрана</span>
-        </div>
-      </div>
-      <div class="ov-results">
-        <div class="ov-box">
-          <div class="ov-box-header">Розпізнаний текст</div>
-          <div class="ov-box-body">—</div>
-        </div>
-        <div class="ov-box">
-          <div class="ov-box-header">Переклад</div>
-          <div class="ov-box-body result">—</div>
-        </div>
-      </div>
-      <button class="cap-btn"><i class="ti ti-screenshot" aria-hidden="true"></i> Захопити область екрана</button>
-      <div class="shortcut"><kbd>Ctrl+Shift+T</kbd> — швидке захоплення</div>
     </div>
   </div>
 
   <div class="statusbar">
-    <div class="sdot"></div>
+    <div class="sdot" id="sdot"></div>
     <span id="statusText">Готовий до роботи</span>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-// ── ВКЛАДКИ ──────────────────────────────────────────────
+// ═══════════════════════════════════════════
+// СТАН
+// ═══════════════════════════════════════════
+var dictionary = [];
+var currentIndex = 0;
+var capturedDataURL = null;
+var currentHotkey = 'Ctrl+Shift+T';
+var isRecordingHotkey = false;
+
+// ═══════════════════════════════════════════
+// ВКЛАДКИ
+// ═══════════════════════════════════════════
 document.querySelectorAll('.tab').forEach(function(tab) {
   tab.addEventListener('click', function() {
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
     tab.classList.add('active');
-    var panelId = 'panel-' + tab.getAttribute('data-panel');
-    document.getElementById(panelId).classList.add('active');
+    document.getElementById('panel-' + tab.getAttribute('data-panel')).classList.add('active');
     if (tab.getAttribute('data-panel') === 'cards') renderStudyView();
   });
 });
 
-// ── КНОПКИ ВІКНА ─────────────────────────────────────────
+// ═══════════════════════════════════════════
+// КНОПКИ ВІКНА
+// ═══════════════════════════════════════════
 document.getElementById('btnMinimize').addEventListener('click', function() {
   if (window.electronAPI) window.electronAPI.minimize();
 });
-
 document.getElementById('btnClose').addEventListener('click', function() {
   if (window.electronAPI) window.electronAPI.close();
 });
 
-// ── ПЕРЕКЛАДАЧ ───────────────────────────────────────────
+// ═══════════════════════════════════════════
+// ПЕРЕКЛАД
+// ═══════════════════════════════════════════
+async function googleTranslate(text, tl, sl) {
+  sl = sl || 'auto';
+  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&q=' + encodeURIComponent(text);
+  var resp = await fetch(url);
+  if (!resp.ok) throw new Error('Помилка ' + resp.status);
+  var data = await resp.json();
+  return data[0].map(function(x) { return x[0]; }).filter(Boolean).join('');
+}
+
 var srcText = document.getElementById('srcText');
 var resultArea = document.getElementById('resultArea');
 
 srcText.addEventListener('input', function() {
-  document.getElementById('cc').textContent = srcText.value.length + ' / 5000';
+  document.getElementById('charCount').textContent = srcText.value.length + ' / 5000';
+});
+srcText.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'Enter') document.getElementById('translateBtn').click();
+});
+
+document.getElementById('translateBtn').addEventListener('click', async function() {
+  var text = srcText.value.trim();
+  if (!text) return;
+  var tl = document.getElementById('tgtLang').value;
+  var sl = document.getElementById('srcLang').value;
+  setStatus('Перекладаємо…', '');
+  this.disabled = true; this.textContent = 'Перекладаємо…';
+  try {
+    var translated = await googleTranslate(text, tl, sl);
+    resultArea.textContent = translated;
+    resultArea.classList.add('has-text');
+    setStatus('Переклад готовий ✓', 'ok');
+  } catch(e) { setStatus('Помилка: ' + e.message, 'error'); }
+  this.disabled = false; this.textContent = 'Перекласти';
+});
+
+document.getElementById('swapBtn').addEventListener('click', function() {
+  var sl = document.getElementById('srcLang');
+  var tl = document.getElementById('tgtLang');
+  var oldSl = sl.value === 'auto' ? 'uk' : sl.value;
+  var oldTl = tl.value;
+  var srcVal = srcText.value;
+  var resVal = resultArea.classList.contains('has-text') ? resultArea.textContent : '';
+  srcText.value = resVal;
+  resultArea.textContent = srcVal || 'Переклад з\'явиться тут…';
+  if (!srcVal) resultArea.classList.remove('has-text'); else resultArea.classList.add('has-text');
+  for (var i = 0; i < sl.options.length; i++) { if (sl.options[i].value === oldTl) { sl.selectedIndex = i; break; } }
+  for (var i = 0; i < tl.options.length; i++) { if (tl.options[i].value === oldSl) { tl.selectedIndex = i; break; } }
+  document.getElementById('charCount').textContent = srcText.value.length + ' / 5000';
+});
+
+document.getElementById('clipBtn').addEventListener('click', async function() {
+  try {
+    var text = await navigator.clipboard.readText();
+    srcText.value = text;
+    document.getElementById('charCount').textContent = text.length + ' / 5000';
+    setStatus('Буфер прочитано', 'ok');
+  } catch(e) { setStatus('Немає доступу до буфера', 'error'); }
 });
 
 document.getElementById('clearBtn').addEventListener('click', function() {
   srcText.value = '';
-  document.getElementById('cc').textContent = '0 / 5000';
+  document.getElementById('charCount').textContent = '0 / 5000';
   resultArea.textContent = 'Переклад з\'явиться тут…';
-  resultArea.style.color = '';
+  resultArea.classList.remove('has-text');
 });
 
 document.getElementById('copySrcBtn').addEventListener('click', function() {
-  if (srcText.value) navigator.clipboard.writeText(srcText.value);
+  if (srcText.value) { navigator.clipboard.writeText(srcText.value); setStatus('Скопійовано ✓', 'ok'); }
 });
 
 document.getElementById('copyResultBtn').addEventListener('click', function() {
-  var t = resultArea.textContent;
-  if (t && t !== 'Переклад з\'явиться тут…') navigator.clipboard.writeText(t);
+  if (resultArea.classList.contains('has-text')) { navigator.clipboard.writeText(resultArea.textContent); setStatus('Скопійовано ✓', 'ok'); }
 });
 
 document.getElementById('saveCardBtn').addEventListener('click', function() {
   var src = srcText.value.trim();
-  var tgt = resultArea.textContent;
-  if (!src || tgt === 'Переклад з\'явиться тут…') {
-    setStatus('Немає тексту для збереження');
-    return;
-  }
+  var tgt = resultArea.classList.contains('has-text') ? resultArea.textContent : '';
+  if (!src || !tgt) { setStatus('Немає тексту для збереження', 'error'); return; }
   dictionary.push({ src: src, tgt: tgt });
-  setStatus('Збережено до словника ✓');
+  setStatus('Збережено до словника ✓', 'ok');
+  // Анімація кнопки
+  var btn = this;
+  btn.style.background = '#1e4a34';
+  setTimeout(function() { btn.style.background = ''; }, 800);
 });
 
-// ── СЛОВНИК ──────────────────────────────────────────────
-var dictionary = [
-  { src: 'Minimalism', tgt: 'Мінімалізм' },
-  { src: 'Translate',  tgt: 'Перекладати' },
-  { src: 'Dictionary', tgt: 'Словник' }
-];
-var currentIndex = 0;
-
+// ═══════════════════════════════════════════
+// ФЛЕШ-КАРТКИ
+// ═══════════════════════════════════════════
 function renderStudyView() {
-  var studyView = document.getElementById('studyView');
-  var emptyView = document.getElementById('emptyView');
-  if (dictionary.length === 0) {
-    studyView.style.display = 'none';
-    emptyView.style.display = 'flex';
-    return;
-  }
-  studyView.style.display = 'flex';
-  emptyView.style.display = 'none';
+  var sv = document.getElementById('studyView');
+  var ev = document.getElementById('emptyView');
+  if (dictionary.length === 0) { sv.style.display = 'none'; ev.style.display = 'flex'; return; }
+  sv.style.display = 'flex'; ev.style.display = 'none';
   if (currentIndex >= dictionary.length) currentIndex = 0;
   showCard(currentIndex);
 }
 
-function showCard(index) {
-  var card = dictionary[index];
+function showCard(idx) {
+  var card = dictionary[idx];
   document.getElementById('cardWord').textContent = card.src;
   document.getElementById('cardTranslation').textContent = card.tgt;
-  document.getElementById('studyCounter').textContent = 'Картка ' + (index + 1) + ' з ' + dictionary.length;
+  document.getElementById('studyCounter').textContent = 'Картка ' + (idx + 1) + ' з ' + dictionary.length;
   document.getElementById('showBtn').style.display = 'block';
   document.getElementById('cardTranslation').style.display = 'none';
 }
@@ -774,26 +644,19 @@ document.getElementById('showBtn').addEventListener('click', function() {
   this.style.display = 'none';
   document.getElementById('cardTranslation').style.display = 'block';
 });
-
 document.getElementById('nextBtn').addEventListener('click', function() {
-  currentIndex = (currentIndex + 1) % dictionary.length;
-  showCard(currentIndex);
+  currentIndex = (currentIndex + 1) % dictionary.length; showCard(currentIndex);
 });
-
 document.getElementById('prevBtn').addEventListener('click', function() {
-  currentIndex = (currentIndex - 1 + dictionary.length) % dictionary.length;
-  showCard(currentIndex);
+  currentIndex = (currentIndex - 1 + dictionary.length) % dictionary.length; showCard(currentIndex);
 });
-
 document.getElementById('shuffleBtn').addEventListener('click', function() {
   for (var i = dictionary.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
     var tmp = dictionary[i]; dictionary[i] = dictionary[j]; dictionary[j] = tmp;
   }
-  currentIndex = 0;
-  showCard(0);
+  currentIndex = 0; showCard(0);
 });
-
 document.getElementById('removeBtn').addEventListener('click', function() {
   dictionary.splice(currentIndex, 1);
   if (dictionary.length === 0) { renderStudyView(); return; }
@@ -801,12 +664,175 @@ document.getElementById('removeBtn').addEventListener('click', function() {
   showCard(currentIndex);
 });
 
-// ── СТАТУС ───────────────────────────────────────────────
-function setStatus(msg) {
+// ═══════════════════════════════════════════
+// ГАРЯЧА КЛАВІША
+// ═══════════════════════════════════════════
+document.getElementById('hotkeyDisplay').addEventListener('click', function() {
+  if (isRecordingHotkey) return;
+  isRecordingHotkey = true;
+  this.classList.add('recording');
+  document.getElementById('hotkeyKeys').textContent = '…';
+  document.getElementById('hotkeyHint').textContent = 'натисни комбінацію';
+});
+
+document.addEventListener('keydown', function(e) {
+  if (!isRecordingHotkey) return;
+  e.preventDefault();
+  if (e.key === 'Escape') {
+    isRecordingHotkey = false;
+    document.getElementById('hotkeyDisplay').classList.remove('recording');
+    document.getElementById('hotkeyKeys').textContent = currentHotkey;
+    document.getElementById('hotkeyHint').textContent = 'Змінити';
+    return;
+  }
+  var parts = [];
+  if (e.ctrlKey) parts.push('Ctrl');
+  if (e.shiftKey) parts.push('Shift');
+  if (e.altKey) parts.push('Alt');
+  if (e.key !== 'Control' && e.key !== 'Shift' && e.key !== 'Alt') {
+    parts.push(e.key.toUpperCase());
+    var combo = parts.join('+');
+    currentHotkey = combo;
+    document.getElementById('hotkeyKeys').textContent = combo;
+    document.getElementById('hotkeyHint').textContent = 'Змінити';
+    document.getElementById('hotkeyDisplay').classList.remove('recording');
+    isRecordingHotkey = false;
+    // Оновити гарячу клавішу в Electron
+    if (window.electronAPI && window.electronAPI.setHotkey) {
+      window.electronAPI.setHotkey(combo);
+    }
+    setStatus('Гаряча клавіша: ' + combo, 'ok');
+  }
+});
+
+// ═══════════════════════════════════════════
+// ОВЕРЛЕЙ
+// ═══════════════════════════════════════════
+function cropImage(dataURL, region) {
+  return new Promise(function(resolve) {
+    var img = new Image();
+    img.onload = function() {
+      var sx = img.naturalWidth / window.screen.width;
+      var sy = img.naturalHeight / window.screen.height;
+      var c = document.createElement('canvas');
+      c.width = region.w * sx; c.height = region.h * sy;
+      c.getContext('2d').drawImage(img, region.x*sx, region.y*sy, region.w*sx, region.h*sy, 0, 0, c.width, c.height);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.src = dataURL;
+  });
+}
+
+function setProgress(pct) {
+  var bar = document.getElementById('progressBar');
+  var fill = document.getElementById('progressFill');
+  if (pct <= 0) { bar.style.display = 'none'; fill.style.width = '0%'; return; }
+  bar.style.display = 'block'; fill.style.width = pct + '%';
+}
+
+async function runOCRandTranslate(croppedURL, region) {
+  var lang = document.getElementById('ocrLang').value;
+  var tl = document.getElementById('ovTgtLang').value;
+  var ocrBox = document.getElementById('ocrResult');
+  var transBox = document.getElementById('ovTransResult');
+  ocrBox.textContent = '…'; ocrBox.classList.remove('has-text');
+  transBox.textContent = '—'; transBox.classList.remove('has-text');
+  setProgress(10); setStatus('Розпізнаємо текст…', '');
+  try {
+    var worker = await Tesseract.createWorker(lang, 1, {
+      logger: function(m) {
+        if (m.status === 'recognizing text') {
+          setProgress(10 + Math.round(m.progress * 60));
+          setStatus('OCR: ' + Math.round(m.progress * 100) + '%', '');
+        }
+      }
+    });
+    var result = await worker.recognize(croppedURL);
+    await worker.terminate();
+    var text = result.data.text.trim();
+    setProgress(75);
+    if (!text) { ocrBox.textContent = 'Текст не знайдено'; setProgress(0); setStatus('Текст не знайдено', 'error'); return; }
+    ocrBox.textContent = text; ocrBox.classList.add('has-text');
+    setStatus('Перекладаємо…', ''); setProgress(80);
+    var translated = await googleTranslate(text, tl);
+    transBox.textContent = translated; transBox.classList.add('has-text');
+    setProgress(100);
+    setTimeout(function() { setProgress(0); }, 600);
+    setStatus('Готово ✓', 'ok');
+    var popupMode = document.getElementById('popupMode').value;
+    if (window.electronAPI && window.electronAPI.showPopup) {
+      if (popupMode === 'always') {
+        window.electronAPI.showPopup({ ocr: text, translation: translated, region: region });
+      } else if (popupMode === 'minimized' && window.electronAPI.isMinimized) {
+        window.electronAPI.isMinimized().then(function(minimized) {
+          if (minimized) window.electronAPI.showPopup({ ocr: text, translation: translated, region: region });
+        });
+      }
+    }
+  } catch(e) {
+    ocrBox.textContent = 'Помилка: ' + e.message;
+    setProgress(0); setStatus('Помилка OCR', 'error');
+  }
+}
+
+document.getElementById('captureBtn').addEventListener('click', async function() {
+  if (!window.electronAPI) { setStatus('Тільки в Electron', 'error'); return; }
+  setStatus('Захоплення екрану…', '');
+  this.style.opacity = '0.6'; this.style.pointerEvents = 'none';
+  var result = await window.electronAPI.captureScreen();
+  this.style.opacity = ''; this.style.pointerEvents = '';
+  if (!result.success) { setStatus('Помилка захоплення', 'error'); return; }
+  capturedDataURL = result.dataURL;
+  await window.electronAPI.showOverlay();
+  setStatus('Виділіть область…', '');
+});
+
+document.getElementById('copyOcrBtn').addEventListener('click', function() {
+  var t = document.getElementById('ocrResult').textContent;
+  if (t && t !== '—') { navigator.clipboard.writeText(t); setStatus('Скопійовано ✓', 'ok'); }
+});
+document.getElementById('copyOvTransBtn').addEventListener('click', function() {
+  var t = document.getElementById('ovTransResult').textContent;
+  if (t && t !== '—') { navigator.clipboard.writeText(t); setStatus('Скопійовано ✓', 'ok'); }
+});
+document.getElementById('saveOvBtn').addEventListener('click', function() {
+  var src = document.getElementById('ocrResult').textContent;
+  var tgt = document.getElementById('ovTransResult').textContent;
+  if (!src || src === '—' || src === '…') { setStatus('Немає тексту', 'error'); return; }
+  dictionary.push({ src: src, tgt: tgt });
+  setStatus('Збережено до словника ✓', 'ok');
+});
+
+if (window.electronAPI) {
+  window.electronAPI.onRegionSelected(async function(region) {
+    var cropped = await cropImage(capturedDataURL, region);
+    var icon = document.querySelector('#previewInner i');
+    var hint = document.getElementById('previewHint');
+    var img = document.getElementById('previewImg');
+    if (icon) icon.style.display = 'none';
+    if (hint) hint.style.display = 'none';
+    img.src = cropped; img.style.display = 'block';
+    await runOCRandTranslate(cropped, region);
+  });
+  window.electronAPI.onOverlayCancelled(function() { setStatus('Захоплення скасовано', ''); });
+  window.electronAPI.onTriggerCapture(function() { document.getElementById('captureBtn').click(); });
+}
+
+// ═══════════════════════════════════════════
+// СТАТУС
+// ═══════════════════════════════════════════
+var statusTimer;
+function setStatus(msg, type) {
+  clearTimeout(statusTimer);
   document.getElementById('statusText').textContent = msg;
-  setTimeout(function() {
-    document.getElementById('statusText').textContent = 'Готовий до роботи';
-  }, 2000);
+  var dot = document.getElementById('sdot');
+  dot.className = 'sdot' + (type ? ' ' + type : '');
+  if (type === 'ok' || type === 'error') {
+    statusTimer = setTimeout(function() {
+      document.getElementById('statusText').textContent = 'Готовий до роботи';
+      dot.className = 'sdot';
+    }, 3000);
+  }
 }
 
 renderStudyView();

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Переклад</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #131c2e;
+      color: #e2e8f0;
+      overflow: hidden;
+      user-select: none;
+      height: auto;
+    }
+
+    .titlebar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: #0f1623;
+      border-bottom: 1px solid #1e2d45;
+      -webkit-app-region: drag;
+      flex-shrink: 0;
+    }
+
+    .titlebar-label {
+      font-size: 11px;
+      color: #4a6fa5;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .close-btn {
+      -webkit-app-region: no-drag;
+      background: none;
+      border: none;
+      color: #4a6fa5;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .close-btn:hover { color: #e05555; background: #1e2d45; }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px;
+      gap: 8px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .section-label {
+      font-size: 9px;
+      color: #8a9ab2;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    .section-text {
+      font-size: 12px;
+      color: #94a3b8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.5;
+    }
+
+    .section-text.translation {
+      font-size: 13px;
+      color: #e2e8f0;
+      font-weight: 500;
+    }
+
+    .divider {
+      height: 1px;
+      background: #1e2d45;
+    }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <span class="titlebar-label">Переклад</span>
+    <button class="close-btn" id="closeBtn">✕</button>
+  </div>
+
+  <div class="content" id="content">
+    <div class="section">
+      <span class="section-label">Оригінал</span>
+      <span class="section-text" id="ocrText">—</span>
+    </div>
+    <div class="divider"></div>
+    <div class="section">
+      <span class="section-label">Переклад</span>
+      <span class="section-text translation" id="translationText">—</span>
+    </div>
+  </div>
+
+  <script>
+    const POPUP_WIDTH = 340;
+
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      if (window.electronAPI && window.electronAPI.closePopup) {
+        window.electronAPI.closePopup();
+      }
+    });
+
+    function reportSize(region) {
+      
+      requestAnimationFrame(() => {
+        const titlebar = document.querySelector('.titlebar');
+        const content = document.getElementById('content');
+        const totalH = titlebar.offsetHeight + content.offsetHeight + 2;
+        if (window.electronAPI && window.electronAPI.resizePopup) {
+          window.electronAPI.resizePopup({ width: POPUP_WIDTH, height: totalH, region });
+        }
+      });
+    }
+
+    if (window.electronAPI && window.electronAPI.onPopupData) {
+      window.electronAPI.onPopupData((data) => {
+        document.getElementById('ocrText').textContent = data.ocr || '—';
+        document.getElementById('translationText').textContent = data.translation || '—';
+        reportSize(data.region || null);
+      });
+    }
+  </script>
+</body>
+</html>

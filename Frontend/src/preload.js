@@ -8,6 +8,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   showOverlay: () => ipcRenderer.invoke('show-overlay'),
   hideOverlay: () => ipcRenderer.invoke('hide-overlay'),
 
+  // Hotkey
+  setHotkey: (combo) => ipcRenderer.invoke('set-hotkey', combo),
+
+  // Popup
+  showPopup: (data) => ipcRenderer.invoke('show-popup', data),
+  closePopup: () => ipcRenderer.send('close-popup'),
+  onPopupData: (cb) => ipcRenderer.on('popup-data', (_, data) => cb(data)),
+  resizePopup: (info) => ipcRenderer.send('popup-resize', info),
+
+  // Window state
+  isMinimized: () => ipcRenderer.invoke('is-minimized'),
+
   // Events from main
   onRegionSelected: (cb) => ipcRenderer.on('region-selected', (_, region) => cb(region)),
   onOverlayCancelled: (cb) => ipcRenderer.on('overlay-cancelled', () => cb()),

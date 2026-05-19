@@ -1,133 +1,201 @@
-const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut } = require('electron');
 const path = require('path');
 
 let mainWindow;
 let overlayWindow;
-let tray;
+let popupWindow;
+let currentHotkey = 'CommandOrControl+Shift+T';
 
+// ── MAIN WINDOW ──────────────────────────────────────────
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 600,
-    minWidth: 750,
-    minHeight: 500,
-    frame: false,
-    transparent: false,
-    backgroundColor: '#0f0f13',
+    width: 900, height: 600, minWidth: 720, minHeight: 540,
+    frame: false, transparent: false, backgroundColor: '#111827',
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: false, contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
-    titleBarStyle: 'hidden',
     show: false,
   });
-
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
-
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
-
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
+  mainWindow.once('ready-to-show', () => mainWindow.show());
+  mainWindow.on('closed', () => { mainWindow = null; });
 }
 
+// ── OVERLAY WINDOW ────────────────────────────────────────
 function createOverlayWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
   overlayWindow = new BrowserWindow({
-    width,
-    height,
-    x: 0,
-    y: 0,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    resizable: false,
-    focusable: true,
+    width, height, x: 0, y: 0,
+    frame: false, transparent: true, alwaysOnTop: true,
+    skipTaskbar: true, resizable: false, focusable: true,
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: false, contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-
   overlayWindow.loadFile(path.join(__dirname, 'overlay.html'));
   overlayWindow.setIgnoreMouseEvents(false);
   overlayWindow.hide();
 }
 
-// Capture screen and return base64 image
+// ── POPUP WINDOW ─────────────────────────────────────────
+function createPopupWindow() {
+  popupWindow = new BrowserWindow({
+    width: 340, height: 160,
+    frame: false, transparent: false, alwaysOnTop: true,
+    skipTaskbar: true, resizable: false, backgroundColor: '#131c2e',
+    webPreferences: {
+      nodeIntegration: false, contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+    },
+    show: false,
+  });
+  popupWindow.loadFile(path.join(__dirname, 'popup.html'));
+  popupWindow.on('closed', () => { popupWindow = null; });
+}
+
+function calcPopupPosition(region, popupW, popupH) {
+  const display = screen.getPrimaryDisplay();
+  const { width: sw, height: sh } = display.workAreaSize;
+  const MARGIN = 12;
+
+  
+  let x = region.x;
+  let y = region.y + region.h + MARGIN;
+
+  
+  if (y + popupH > sh) {
+    y = region.y - popupH - MARGIN;
+  }
+  
+  if (y < 0) {
+    y = sh - popupH - MARGIN;
+  }
+
+ 
+  x = region.x;
+  
+  if (x + popupW > sw) {
+    x = sw - popupW - MARGIN;
+  }
+  
+  if (x < MARGIN) x = MARGIN;
+
+  return { x: Math.round(x), y: Math.round(y) };
+}
+
+function showPopup(data) {
+  
+  const sendData = () => {
+    if (!popupWindow || popupWindow.isDestroyed()) return;
+
+    
+    popupWindow.webContents.send('popup-data', data);
+    popupWindow.show();
+
+  };
+
+  if (!popupWindow || popupWindow.isDestroyed()) {
+    createPopupWindow();
+    popupWindow.webContents.once('did-finish-load', sendData);
+  } else {
+    sendData();
+  }
+}
+
+
+ipcMain.on('popup-resize', (event, { width, height, region }) => {
+  if (!popupWindow || popupWindow.isDestroyed()) return;
+
+  const W = Math.min(Math.max(width, 280), 520);
+  const H = Math.min(Math.max(height, 80), 400);
+
+  popupWindow.setSize(W, H);
+
+  if (region && region.x != null) {
+    const pos = calcPopupPosition(region, W, H);
+    popupWindow.setPosition(pos.x, pos.y);
+  } else {
+    
+    const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
+    popupWindow.setPosition(sw - W - 16, sh - H - 16);
+  }
+});
+
+// ── РЕЄСТРАЦІЯ ГАРЯЧОЇ КЛАВІШІ ───────────────────────────
+function registerHotkey(combo) {
+  globalShortcut.unregisterAll();
+  const electronCombo = combo
+    .replace('Ctrl', 'Control')
+    .replace('Alt', 'Alt')
+    .replace('Shift', 'Shift');
+  try {
+    const ok = globalShortcut.register(electronCombo, () => {
+      if (mainWindow) {
+        mainWindow.webContents.send('trigger-capture');
+      }
+    });
+    if (!ok) console.log('Hotkey registration failed:', electronCombo);
+    else currentHotkey = combo;
+  } catch(e) {
+    console.log('Hotkey error:', e.message);
+  }
+}
+
+// ── IPC ───────────────────────────────────────────────────
 ipcMain.handle('capture-screen', async () => {
   try {
     const sources = await desktopCapturer.getSources({
       types: ['screen'],
       thumbnailSize: { width: 1920, height: 1080 },
     });
-
-    if (sources.length === 0) throw new Error('No screen sources found');
-
-    const source = sources[0];
-    const thumbnail = source.thumbnail;
-    const dataURL = thumbnail.toDataURL();
-    return { success: true, dataURL };
-  } catch (err) {
-    return { success: false, error: err.message };
+    if (!sources.length) throw new Error('Екран не знайдено');
+    return { success: true, dataURL: sources[0].thumbnail.toDataURL() };
+  } catch(e) {
+    return { success: false, error: e.message };
   }
 });
 
-// Show overlay for region selection
 ipcMain.handle('show-overlay', () => {
-  if (overlayWindow) {
-    overlayWindow.show();
-    overlayWindow.focus();
-  }
+  if (overlayWindow) { overlayWindow.show(); overlayWindow.focus(); }
 });
-
 ipcMain.handle('hide-overlay', () => {
   if (overlayWindow) overlayWindow.hide();
 });
+ipcMain.handle('show-popup', (event, data) => {
+  showPopup(data);
+});
+ipcMain.handle('is-minimized', () => {
+  return mainWindow ? mainWindow.isMinimized() : false;
+});
+ipcMain.handle('set-hotkey', (event, combo) => {
+  registerHotkey(combo);
+  return currentHotkey;
+});
 
-// Receive selected region from overlay, send to main window
 ipcMain.on('region-selected', (event, region) => {
   if (overlayWindow) overlayWindow.hide();
   if (mainWindow) mainWindow.webContents.send('region-selected', region);
 });
-
 ipcMain.on('overlay-cancelled', () => {
   if (overlayWindow) overlayWindow.hide();
   if (mainWindow) mainWindow.webContents.send('overlay-cancelled');
 });
-
-// Window controls
 ipcMain.on('window-minimize', () => mainWindow?.minimize());
 ipcMain.on('window-close', () => app.quit());
-
+ipcMain.on('window-close', () => app.quit());
+ipcMain.on('close-popup', () => { if (popupWindow && !popupWindow.isDestroyed()) popupWindow.hide(); }); 
+// ── APP ───────────────────────────────────────────────────
 app.whenReady().then(() => {
   createMainWindow();
   createOverlayWindow();
-
-  // Global shortcut: Ctrl+Shift+T to trigger capture
-  globalShortcut.register('CommandOrControl+Shift+T', () => {
-    if (mainWindow) {
-      mainWindow.show();
-      mainWindow.focus();
-      mainWindow.webContents.send('trigger-capture');
-    }
-  });
-
+  createPopupWindow();
+  registerHotkey('Ctrl+Shift+T');
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
 });
 
-app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
-});
+app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
