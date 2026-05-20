@@ -61,6 +61,7 @@ document.getElementById('translateBtn').addEventListener('click', async function
   this.disabled = true; this.textContent = 'Перекладаємо…';
   try {
     var translated = await googleTranslate(text, tl, sl);
+    translated = translated.charAt(0).toUpperCase() + translated.slice(1);
     resultArea.textContent = translated;
     resultArea.classList.add('has-text');
     setStatus('Переклад готовий ✓', 'ok');
