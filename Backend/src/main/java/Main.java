@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
         String text = "Hallo, wie geht's?";
@@ -20,7 +21,7 @@ public class Main {
                 "ONNX",
                 map
         );
-        MachineTranslator translator = new MachineTranslator(config);
+        MachineTranslator translator = MachineTranslatorFabric.createTranslator(config);
         while(!text.equals("exit")){
           text = scanner.nextLine();
             long startTime = System.currentTimeMillis();
