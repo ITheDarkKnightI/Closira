@@ -24,6 +24,7 @@ public class MachineTranslator {
     private final ZooModel<DecoderInput, NDList> DECODER;
     private final HuggingFaceTokenizer TOKENIZER;
     private static final Logger log = LoggerFactory.getLogger(MachineTranslator.class);
+    private boolean status = false;
     public MachineTranslator(ModelConfig config){
         Map<String, Path> paths= config.componentPaths();
 
@@ -40,6 +41,7 @@ public class MachineTranslator {
         }catch(Exception e){
             throw new RuntimeException("Error initializing objects: ", e);
         }
+        status = true;
         log.info("Model is initialized");
     }
     /**
@@ -87,7 +89,7 @@ public class MachineTranslator {
             log.info("Created DecoderInput");
             log.info("*Start of cycle*");
             for(int i = 0; i < 512; i++){
-                try(NDManager subManager = NDManager.newBaseManager()){
+                try(NDManager subManager = manager.newSubManager()){
                     NDList decoderOutput = decoderPredictor.predict(decoderInput);
                     decoderOutput.attach(subManager);
                     NDArray logits = decoderOutput.getFirst();
@@ -101,18 +103,15 @@ public class MachineTranslator {
 
                     if(i == 0){
                         for(int j = 0; j < parameters.layers() * 4; j++){
-                            NDArray newTensor = decoderOutput.get(j + 1).duplicate();
-                            newTensor.detach();
+                            NDArray newTensor = decoderOutput.get(j + 1);
                             newTensor.attach(manager);
                             decoderKVCache.set(j, newTensor).close();
                         }
                         decoderInput = decoderInput.withUseCacheBranch(manager.create(new boolean[]{true}));
                     }else{
                         for(int j = 0; j < parameters.layers(); j++){
-                            NDArray newKey = decoderOutput.get(j*4+1).duplicate();
-                            NDArray newValue = decoderOutput.get(j*4+2).duplicate();
-                            newKey.detach();
-                            newValue.detach();
+                            NDArray newKey = decoderOutput.get(j*4+1);
+                            NDArray newValue = decoderOutput.get(j*4+2);
                             newKey.attach(manager);
                             newValue.attach(manager);
                             decoderKVCache.set(j * 4, newKey).close();
@@ -151,5 +150,9 @@ public class MachineTranslator {
             KVCache.add(manager.zeros(encoderCacheShape));
         }
         return KVCache;
+    }
+
+    public boolean isLoaded(){
+        return status;
     }
 }
