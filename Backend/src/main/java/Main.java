@@ -1,3 +1,4 @@
+import io.javalin.Javalin;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -17,14 +18,24 @@ public class Main {
                 "ONNX",
                 paths
         );
-        MachineTranslator translator = MachineTranslatorFabric.createTranslator(config);
-        while(!text.equals("exit")){
-          text = scanner.nextLine();
-            long startTime = System.currentTimeMillis();
-            text = translator.translate(text, src, targ);
-            System.out.println("translated text: " + text);
-            long endTime = System.currentTimeMillis();
-            System.out.println("Time: " + (endTime - startTime) + " miliSec");
-        }
+        MachineTranslator translator = MachineTranslatorFabric.createTranslator(conf);
+        var app = Javalin.create(
+                config -> {
+                    config.routes.post("/translate", ctx -> {
+                        TranslationRequest req = ctx.bodyAsClass(TranslationRequest.class);
+                        String translated = translator.translate(req.text(), req.srcLan(), req.trgLan());
+                        if(translated == null){
+                            ctx.status(400);
+                        }else
+                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), translated));
+                    });
+                    config.routes.get("/connect", ctx -> {
+                        if(translator.isLoaded())
+                            ctx.status(200);
+                        else
+                            ctx.status(503);
+                    });
+                }
+        ).start(port);
     }
 }
