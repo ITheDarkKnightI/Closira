@@ -24,6 +24,7 @@ public class MachineTranslator {
     private final ZooModel<DecoderInput, NDList> DECODER;
     private final HuggingFaceTokenizer TOKENIZER;
     private static final Logger log = LoggerFactory.getLogger(MachineTranslator.class);
+    private boolean status = false;
     public MachineTranslator(ModelConfig config){
         Map<String, Path> paths= config.componentPaths();
 
@@ -40,6 +41,7 @@ public class MachineTranslator {
         }catch(Exception e){
             throw new RuntimeException("Error initializing objects: ", e);
         }
+        status = true;
         log.info("Model is initialized");
     }
     /**
@@ -148,5 +150,9 @@ public class MachineTranslator {
             KVCache.add(manager.zeros(encoderCacheShape));
         }
         return KVCache;
+    }
+
+    public boolean isLoaded(){
+        return status;
     }
 }
