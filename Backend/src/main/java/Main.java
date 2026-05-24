@@ -45,5 +45,6 @@ public class Main {
         ).start(0);
         int port = app.port();
         System.out.println("SERVER_PORT: " + port);
+        translatorRef.set(new MachineTranslator(conf));
     }
 }
