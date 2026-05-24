@@ -34,17 +34,24 @@ document.getElementById('btnClose').addEventListener('click', function() {
 // ═══════════════════════════════════════════
 // ПЕРЕКЛАД
 // ═══════════════════════════════════════════
-async function googleTranslate(text, tl, sl) {
+async function googleTranslate(text1, tl, sl) {
   sl = sl || 'auto';
-  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&q=' + encodeURIComponent(text);
-  var resp = await fetch(url);
+  console.log("Post request");
+  var current_url = url + "/translate";
+  var resp = await fetch(current_url, {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  }, 
+	  body: JSON.stringify({srcLan: "eng_Latn", trgLan: "rus_Cyrl", text: text1})
+  });
   if (!resp.ok) throw new Error('Помилка ' + resp.status);
   var data = await resp.json();
-  return data[0].map(function(x) { return x[0]; }).filter(Boolean).join('');
+  return data.text;
 }
 
 window.electronAPI.onReceivePort((port) => {
-	url = "http://localhost:${port}";
+	url = `http://localhost:${port}`;
 });
 
 var srcText = document.getElementById('srcText');

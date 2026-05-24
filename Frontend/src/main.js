@@ -116,6 +116,7 @@ function createServer(){
 
             const match = output.match(/SERVER_PORT: (\d+)/);
             if (match) {
+				console.log("Matched: " + match[1]);
 				mainWindow.webContents.send('set-server-port', parseInt(match[1]));
                 resolve(parseInt(match[1]));
             }
@@ -228,6 +229,7 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
   try{
+	  console.log("Create server");
 	  await createServer();
   }catch(err){
 	  console.error('Failed to start server:', err);
@@ -236,6 +238,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('will-quit', () => {
+	console.log("Exit");
 	globalShortcut.unregisterAll()
 	if(javaProcess)
 		javaProcess.kill();
