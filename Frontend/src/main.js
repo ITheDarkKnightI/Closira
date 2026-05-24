@@ -116,8 +116,8 @@ function createServer(){
 
             const match = output.match(/SERVER_PORT: (\d+)/);
             if (match) {
+				mainWindow.webContents.send('set-server-port', parseInt(match[1]));
                 resolve(parseInt(match[1]));
-				mainWindow.webContents.send('set-server-port', port);
             }
         });
 
@@ -126,7 +126,7 @@ function createServer(){
         });
 
         javaProcess.on('error', reject);
-	}
+	});
 }
 
 function getJavaPath() {
@@ -134,7 +134,7 @@ function getJavaPath() {
 }
 
 function getJarPath() {
-    return path.join(__dirname, '..', 'Backend', 'target', 'PR-backend-1.0-SNAPSHOT.jar');
+    return path.join(__dirname, '..', '..', 'Backend', 'target', 'PR-backend-1.0-SNAPSHOT.jar');
 }
 
 ipcMain.on('popup-resize', (event, { width, height, region }) => {
@@ -219,7 +219,7 @@ ipcMain.on('window-close', () => app.quit());
 ipcMain.on('window-close', () => app.quit());
 ipcMain.on('close-popup', () => { if (popupWindow && !popupWindow.isDestroyed()) popupWindow.hide(); }); 
 // ── APP ───────────────────────────────────────────────────
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createMainWindow();
   createOverlayWindow();
   createPopupWindow();
@@ -227,7 +227,17 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
+  try{
+	  await createServer();
+  }catch(err){
+	  console.error('Failed to start server:', err);
+       app.quit();
+  }
 });
 
-app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('will-quit', () => {
+	globalShortcut.unregisterAll()
+	if(javaProcess)
+		javaProcess.kill();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
