@@ -1,10 +1,12 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut } = require('electron');
+const {spawn} = require('child_process');
 const path = require('path');
 
 let mainWindow;
 let overlayWindow;
 let popupWindow;
 let currentHotkey = 'CommandOrControl+Shift+T';
+let javaProcess;
 
 // ── MAIN WINDOW ──────────────────────────────────────────
 function createMainWindow() {
@@ -104,6 +106,32 @@ function showPopup(data) {
   }
 }
 
+function createServer(){
+	return new Promise((resolve, reject) =>{
+		javaProcess = spawn(getJavaPath(), ['-jar', getJarPath()]);
+		javaProcess.stdout.on('data', (data) => {
+            const output = data.toString();
+            console.log('Java:', output);
+
+            const match = output.match(/SERVER_PORT: (\d+)/);
+            if (match) {
+                resolve(parseInt(match[1]));
+        });
+		javaProcess.stderr.on('data', (data) => {
+            console.error('Java error:', data.toString());
+        });
+
+        javaProcess.on('error', reject);
+	});
+}
+
+function getJavaPath() {
+    return 'java'; // Тестовий шлях
+}
+
+function getJarPath() {
+    return path.join(__dirname, '..', 'Backend', 'target', 'PR-backend-1.0-SNAPSHOT.jar');
+}
 
 ipcMain.on('popup-resize', (event, { width, height, region }) => {
   if (!popupWindow || popupWindow.isDestroyed()) return;
