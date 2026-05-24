@@ -127,7 +127,7 @@ public class MachineTranslator {
             throw new RuntimeException("Translation error", e);
         }
         long[] resultTokens = resultTokenList.stream().mapToLong(Long::longValue).toArray();
-        return TOKENIZER.decode(resultTokens);
+        return clearText(TOKENIZER.decode(resultTokens));
     }
 
     /**
@@ -152,6 +152,11 @@ public class MachineTranslator {
         return KVCache;
     }
 
+    private String clearText(String translatedText){
+        String text = translatedText.substring(0, translatedText.length()-4);
+        text = text.substring(text.indexOf(" ") + 1);
+        return text;
+    }
     public boolean isLoaded(){
         return status;
     }
