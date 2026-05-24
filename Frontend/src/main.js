@@ -109,20 +109,24 @@ function showPopup(data) {
 function createServer(){
 	return new Promise((resolve, reject) =>{
 		javaProcess = spawn(getJavaPath(), ['-jar', getJarPath()]);
-		javaProcess.stdout.on('data', (data) => {
+
+        javaProcess.stdout.on('data', (data) => {
             const output = data.toString();
             console.log('Java:', output);
 
             const match = output.match(/SERVER_PORT: (\d+)/);
             if (match) {
                 resolve(parseInt(match[1]));
+				mainWindow.webContents.send('set-server-port', port);
+            }
         });
-		javaProcess.stderr.on('data', (data) => {
+
+        javaProcess.stderr.on('data', (data) => {
             console.error('Java error:', data.toString());
         });
 
         javaProcess.on('error', reject);
-	});
+	}
 }
 
 function getJavaPath() {

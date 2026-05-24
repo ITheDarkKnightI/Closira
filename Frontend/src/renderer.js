@@ -6,6 +6,7 @@ var currentIndex = 0;
 var capturedDataURL = null;
 var currentHotkey = 'Ctrl+Shift+T';
 var isRecordingHotkey = false;
+let url = "";
 
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
@@ -41,6 +42,10 @@ async function googleTranslate(text, tl, sl) {
   var data = await resp.json();
   return data[0].map(function(x) { return x[0]; }).filter(Boolean).join('');
 }
+
+window.electronAPI.onReceivePort((port) => {
+	url = "http://localhost:${port}";
+});
 
 var srcText = document.getElementById('srcText');
 var resultArea = document.getElementById('resultArea');
