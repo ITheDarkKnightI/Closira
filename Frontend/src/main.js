@@ -217,8 +217,10 @@ ipcMain.on('overlay-cancelled', () => {
 });
 ipcMain.on('window-minimize', () => mainWindow?.minimize());
 ipcMain.on('window-close', () => app.quit());
-ipcMain.on('window-close', () => app.quit());
 ipcMain.on('close-popup', () => { if (popupWindow && !popupWindow.isDestroyed()) popupWindow.hide(); }); 
+
+let serverPort = null;
+ipcMain.handle('get-server-port', () => serverPort);
 // ── APP ───────────────────────────────────────────────────
 app.whenReady().then(async () => {
   createMainWindow();
@@ -240,7 +242,11 @@ app.whenReady().then(async () => {
 app.on('will-quit', () => {
 	console.log("Exit");
 	globalShortcut.unregisterAll()
-	if(javaProcess)
-		javaProcess.kill();
+	if(javaProcess){
+		try{ javaProcess.kill('SIGTERM');} catch (e){}
+		setTimeout(() => {
+			try{if(javaProcess) javaProcess.kill('SIGKILL');} catch(e) {}
+		}, 1500);
+	}
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
