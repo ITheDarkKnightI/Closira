@@ -73,10 +73,10 @@ html, body { height: 100vh; overflow: hidden; background: #111827; color: #c8d0d
 .card-label { font-size: clamp(9px,1vw,11px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; white-space: nowrap; }
 .card-btn {
   display: flex; align-items: center; gap: 5px; padding: clamp(4px,0.5vw,5px) clamp(8px,1.2vw,12px);
-  background: #1e2a3d; border: 1px solid #8a9ab2; border-radius: 7px;
-  font-size: clamp(10px,1.1vw,12px); font-weight: 500; color: #6a7a92; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  background: #2d6be4; border: 1px solid #6798fa; border-radius: 7px;
+  font-size: clamp(10px,1.1vw,12px); font-weight: 500; color: #fff; cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-.card-btn:hover { background: #243044; color: #8a9ab2; }
+.card-btn:hover { background: #243044;  }
 .card-btn i { font-size: clamp(16px,1.3vw,14px); }
 
 /* Помітна кнопка збереження */
@@ -99,9 +99,9 @@ textarea {
 textarea::placeholder { color: #8a9ab2; }
 .result-area {
   padding: clamp(10px,1.2vw,16px); font-size: clamp(16px,1.3vw,14px);
-  font-weight: 300; line-height: 1.75; color: #6a7a92; flex: 1; min-height: 30px; overflow-y: hidden;
+  font-weight: 300; line-height: 1.75; color: #8a9ab2; flex: 1; min-height: 30px; overflow-y: hidden;
 }
-.result-area.has-text { color: #6a7a92; }
+.result-area.has-text { color: #8a9ab2; }
 .card-footer { display: flex; align-items: center; justify-content: space-between; padding: clamp(5px,0.7vw,7px) clamp(8px,1.2vw,12px); border-top: 1px solid #1e2a3d; gap: 6px; }
 .char-count { font-size: clamp(9px,1vw,11px); color: #8a9ab2; white-space: nowrap; }
 .footer-btns { display: flex; gap: 2px; }
@@ -186,7 +186,7 @@ textarea::placeholder { color: #8a9ab2; }
 }
 .preview-inner i { font-size: clamp(22px,2.5vw,30px); }
 .preview-inner img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
-.dotlive { width: 6px; height: 6px; border-radius: 50%; background: #2d6be4; animation: blink 2s infinite; }
+.dotlive { width: 6px; height: 6px; border-radius: 50%; background: #234383; animation: blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
 .ov-results { display: flex; gap: 8px; width: 100%; }
@@ -201,7 +201,7 @@ textarea::placeholder { color: #8a9ab2; }
 .settings-header { padding: 9px 14px; border-bottom: 1px solid #1e2a3d; font-size: clamp(9px,1vw,10px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; }
 .settings-body { padding: clamp(8px,1.2vw,12px); display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); }
 .setting-row { display: flex; flex-direction: column; gap: 4px; }
-.setting-label { font-size: clamp(10px,1vw,11px); color: #8a9ab2; }
+.setting-label { font-size: clamp(10px,1vw,11px); margin: 0; padding: 0; color: #8a9ab2; }
 .setting-select {
   width: 100%; padding: clamp(5px,0.7vw,7px) 28px clamp(5px,0.7vw,7px) 10px;
   background: #131c2e; border: 1px solid #1e2a3d; border-radius: 7px;
@@ -213,34 +213,35 @@ textarea::placeholder { color: #8a9ab2; }
 .sel-arrow { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #8a9ab2; font-size: 12px; pointer-events: none; }
 
 /* Гаряча клавіша */
-.hotkey-row { display: flex; flex-direction: column; gap: 6px; }
+.hotkey-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; }
 .hotkey-display {
   display: flex; align-items: center; justify-content: space-between;
-  padding: clamp(5px,0.7vw,8px) 10px; background: #131c2e;
-  border: 1px solid #1e2a3d; border-radius: 7px; cursor: pointer; transition: border-color 0.15s;
+  height: 32px; padding: 0 clamp(8px,1.2vw,12px); background: #2d6be4;
+  border: 1px solid #6798fa; border-radius: 7px; cursor: pointer; transition: all 0.15s;
 }
-.hotkey-display:hover { border-color: #2d6be4; }
+.hotkey-display:hover { background: #243044; }
 .hotkey-display.recording { border-color: #e05555; background: #1e1020; }
-.hotkey-keys { font-family: monospace; font-size: clamp(10px,1.1vw,12px); color: #2d6be4; }
-.hotkey-hint { font-size: clamp(9px,0.9vw,10px); color: #8a9ab2; }
+.hotkey-keys { font-family: monospace; width: 100%; padding: 0; font-size: clamp(15px,1.2vw,13px); color: #fff; font-weight: 500; line-height: 1; }
+.hotkey-hint { font-size: clamp(11px,1vw,12px); color: #e6e6e6; white-space: nowrap; }
 
 /* Кнопки дій */
 .ov-actions { display: flex; flex-direction: column; gap: 6px; }
 .cap-btn {
-  width: 100%; padding: clamp(8px,1vw,11px); background: #2d6be4; border: none;
-  border-radius: 9px; color: #fff; font-family: 'Inter', sans-serif;
-  font-size: clamp(15px,1.2vw,13px); font-weight: 500; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 7px; transition: background 0.15s;
-}
-.cap-btn:hover { background: #3a78f0; }
-.save-ov-btn {
-  width: 100%; padding: clamp(7px,0.9vw,9px); background: #1a3a2a;
-  border: 1px solid #2a6a4a; border-radius: 9px; color: #4adf8a;
-  font-family: 'Inter', sans-serif; font-size: clamp(15px,1.2vw,12px); font-weight: 500;
+  width: 100%; height: 32px; padding: 0 clamp(8px,1.2vw,12px); background: #1a2438;
+  border: 1px solid #2a3a54; border-radius: 7px; color: #c8d0dc;
+  font-family: 'Inter', sans-serif; font-size: clamp(15px,1.2vw,13px); font-weight: 500;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  gap: 7px; transition: all 0.15s;
+  gap: 6px; transition: all 0.15s;
 }
-.save-ov-btn:hover { background: #1e4a34; border-color: #4adf8a; }
+.cap-btn:hover { border-color: #2d6be4; color: #fff; }
+.save-ov-btn {
+  width: 100%; height: 32px; padding: 0 clamp(8px,1.2vw,12px); background: #1a2438;
+  border: 1px solid #2a3a54; border-radius: 7px; color: #c8d0dc;
+  font-family: 'Inter', sans-serif; font-size: clamp(15px,1.2vw,13px); font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 6px; transition: all 0.15s;
+}
+.save-ov-btn:hover { border-color: #4adf8a; color: #4adf8a; }
 .shortcut-display { font-size: clamp(10px,1vw,11px); color: #8a9ab2; text-align: center; }
 .shortcut-display kbd { background: #1a2438; border: 1px solid #1e2a3d; border-radius: 4px; padding: 1px 5px; font-size: clamp(9px,1vw,10px); color: #8a9ab2; }
 
