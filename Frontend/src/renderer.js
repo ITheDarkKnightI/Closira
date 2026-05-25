@@ -40,6 +40,50 @@ async function pingHealth() {
     return false;
   }
 }
+
+async function waitForServer() {
+  setLoadingProgress(10);
+  loadingTitle.textContent = 'Запуск сервера…';
+  loadingSub.textContent = 'Завантаження моделей перекладу. Це може зайняти кілька секунд.';
+
+  let portWait = 0;
+  while (!url && portWait < 120) {
+    await new Promise(r => setTimeout(r, 500));
+    portWait++;
+  }
+  if (!url) {
+    showLoadingError('Сервер не відповів: порт не отримано');
+    return;
+  }
+
+  setLoadingProgress(30);
+  loadingTitle.textContent = 'Підключення до сервера…';
+
+  let attempts = 0;
+  const maxAttempts = 60;
+  while (attempts < maxAttempts) {
+    const ok = await pingHealth();
+    if (ok) {
+      setLoadingProgress(100);
+      loadingTitle.textContent = 'Готово!';
+      loadingSub.textContent = 'Сервер готовий до роботи.';
+      await new Promise(r => setTimeout(r, 400));
+      // ховаємо оверлей
+      loadingOverlay.classList.add('hidden');
+      setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+      serverReady = true;
+      setStatus('Готовий до роботи', '');
+      return;
+    }
+    attempts++;
+    // Анімація прогресу 30–90%
+    setLoadingProgress(30 + Math.round((attempts / maxAttempts) * 60));
+    loadingTitle.textContent = `Завантаження моделей… (${attempts}/${maxAttempts})`;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+
+  showLoadingError('Сервер не відповів за відведений час');
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
