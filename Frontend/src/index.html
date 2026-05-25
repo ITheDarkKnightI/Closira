@@ -226,6 +226,27 @@
   </div>
 </div>
 
+<!-- Завантаження додатку -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box">
+    <div class="loading-logo"><i class="ti ti-language"></i> Closira</div>
+    <div class="loading-spinner">
+      <div class="spin-ring"></div>
+    </div>
+    <div class="loading-title" id="loadingTitle">Запуск сервера…</div>
+    <div class="loading-sub" id="loadingSub">Завантаження моделей перекладу. Це може зайняти кілька секунд.</div>
+    <div class="loading-progress-wrap">
+      <div class="loading-progress-bar">
+        <div class="loading-progress-fill" id="loadingProgressFill"></div>
+      </div>
+    </div>
+    <div class="loading-error" id="loadingError" style="display:none">
+      <i class="ti ti-alert-triangle"></i>
+      <span id="loadingErrorText">Не вдалося підключитися до сервера</span>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="renderer.js"></script>
 </body>
