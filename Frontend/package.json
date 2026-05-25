@@ -5,12 +5,31 @@
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+	"build": "electron-builder --win"
   },
   "dependencies": {
     "tesseract.js": "^5.1.0"
   },
   "devDependencies": {
     "electron": "^29.0.0"
+  },
+  "build": {
+    "appId": "com.closira.app",
+    "productName": "Closira",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": ["nsis"]
+    },
+    "asar": true,
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "resources",
+        "filter": ["**/*"]
+      }
+    ]
   }
 }
