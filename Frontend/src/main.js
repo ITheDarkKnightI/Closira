@@ -151,8 +151,10 @@ function getBasePath() {
 ipcMain.on('popup-resize', (event, { width, height, region }) => {
   if (!popupWindow || popupWindow.isDestroyed()) return;
 
+  const { height: sh, width: sw } = screen.getPrimaryDisplay().workAreaSize;
+
   const W = Math.min(Math.max(width, 280), 520);
-  const H = Math.min(Math.max(height, 80), 400);
+  const H = Math.min(Math.max(height, 80), sh - 40);
 
   popupWindow.setSize(W, H);
 
@@ -160,8 +162,6 @@ ipcMain.on('popup-resize', (event, { width, height, region }) => {
     const pos = calcPopupPosition(region, W, H);
     popupWindow.setPosition(pos.x, pos.y);
   } else {
-    
-    const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
     popupWindow.setPosition(sw - W - 16, sh - H - 16);
   }
 });

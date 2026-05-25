@@ -43,7 +43,7 @@ html, body { height: 100vh; overflow: hidden; background: #111827; color: #c8d0d
 .translate-body {
   flex: 1; display: flex; flex-direction: column;
   padding: clamp(16px,2vw,24px) clamp(16px,3vw,32px) 12px;
-  overflow-y: hidden; gap: clamp(8px,1.2vw,14px); background: #111827;
+  overflow-y: auto; gap: clamp(8px,1.2vw,14px); background: #111827;
 }
 .hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .hero-title { display: flex; align-items: center; gap: 10px; font-size: clamp(18px,2.5vw,26px); font-weight: 600; color: #e8edf5; }
@@ -94,12 +94,12 @@ textarea {
   width: 100%; background: transparent; border: none; outline: none;
   color: #c8d0dc; font-family: 'Inter', sans-serif;
   font-size: clamp(16px,1.3vw,14px); font-weight: 300; line-height: 1.75;
-  padding: clamp(10px,1.2vw,16px); resize: none; flex: 1; min-height: 40px;
+  padding: clamp(10px,1.2vw,16px); resize: none; flex: 1; min-height: 40px; overflow-y: auto;
 }
 textarea::placeholder { color: #8a9ab2; }
 .result-area {
   padding: clamp(10px,1.2vw,16px); font-size: clamp(16px,1.3vw,14px);
-  font-weight: 300; line-height: 1.75; color: #8a9ab2; flex: 1; min-height: 30px; overflow-y: hidden;
+  font-weight: 300; line-height: 1.75; color: #8a9ab2; flex: 1; min-height: 30px; overflow-y: auto;
 }
 .result-area.has-text { color: #8a9ab2; }
 .card-footer { display: flex; align-items: center; justify-content: space-between; padding: clamp(5px,0.7vw,7px) clamp(8px,1.2vw,12px); border-top: 1px solid #1e2a3d; gap: 6px; }
@@ -141,7 +141,8 @@ textarea::placeholder { color: #8a9ab2; }
   font-weight: 500; color: #2d6be4; cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
 }
 .show-btn:hover { background: rgba(45,107,228,0.1); }
-.translation-text { font-size: clamp(20px,3vw,28px); font-weight: 400; color: #2d6be4; display: none; }
+.flashcard-bottom .show-btn { display: block; margin: 0 auto; }
+.translation-text { font-size: clamp(20px,3vw,28px); font-weight: 400; color: #2d6be4; display: none; word-break: break-word; text-align: center; width: 100%; line-height: 1.5; }
 .flashcard-controls { width: 100%; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
 .remove-btn {
   display: flex; align-items: center; gap: 6px; font-size: clamp(15px,1.2vw,13px);
@@ -175,7 +176,7 @@ textarea::placeholder { color: #8a9ab2; }
 
 /* Два стовпці в оверлеї */
 .ov-layout { display: flex; gap: clamp(10px,1.5vw,16px); width: 100%; align-items: flex-start; flex: 1; min-height: 0; }
-.ov-left { flex: 1; display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); min-width: 0; overflow-y: hidden; }
+.ov-left { flex: 1; display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); min-width: 0; overflow-y: auto; }
 .ov-right { width: clamp(180px,25vw,240px); display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); flex-shrink: 0; }
 
 .preview-card { width: 100%; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 12px; overflow: hidden; }
@@ -192,7 +193,7 @@ textarea::placeholder { color: #8a9ab2; }
 .ov-results { display: flex; gap: 8px; width: 100%; }
 .ov-box { flex: 1; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 10px; overflow: hidden; min-width: 0; }
 .ov-box-header { padding: 8px 12px; border-bottom: 1px solid #1e2a3d; font-size: clamp(9px,1vw,10px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; display: flex; justify-content: space-between; align-items: center; }
-.ov-box-body { padding: 10px 12px; font-size: clamp(15px,1.2vw,13px); color: #8a9ab2; min-height: clamp(40px,6vh,60px); line-height: 1.6; word-break: break-word; }
+.ov-box-body { padding: 10px 12px; font-size: clamp(15px,1.2vw,13px); color: #8a9ab2; min-height: clamp(40px,6vh,60px); max-height: clamp(80px,14vh,140px); overflow-y: auto; line-height: 1.6; word-break: break-word; }
 .ov-box-body.has-text { color: #c8d0dc; }
 .ov-box-body.result.has-text { color: #2d6be4; }
 
@@ -258,11 +259,14 @@ textarea::placeholder { color: #8a9ab2; }
 .sdot.error { background: #e05555; }
 .sdot.ok { background: #34c759; }
 
-/* hide scrollbar */
-::-webkit-scrollbar {
-  display: none;
-  width: 0 !important;
-  height: 0 !important;
+/* hide scrollbar but keep scroll functional */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 /* LOADING OVERLAY */
