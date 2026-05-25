@@ -122,14 +122,14 @@ document.getElementById('btnClose').addEventListener('click', function() {
 // ═══════════════════════════════════════════
 async function googleTranslate(text1, tl, sl) {
   sl = sl || 'auto';
-  console.log("Post request");
+  console.log(`Post request: srcLan:${sl}, trgLan:${tl}`);
   var current_url = url + "/translate";
   var resp = await fetch(current_url, {
 	  method: 'POST',
 	  headers: {
 		'Content-Type': 'application/json'
 	  }, 
-	  body: JSON.stringify({srcLan: "eng_Latn", trgLan: "rus_Cyrl", text: text1})
+	  body: JSON.stringify({srcLan: sl, trgLan: tl, text: text1})
   });
   if (!resp.ok) throw new Error('Помилка ' + resp.status);
   var data = await resp.json();
