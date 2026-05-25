@@ -19,7 +19,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Window state
   isMinimized: () => ipcRenderer.invoke('is-minimized'),
-
+  getServerPort: () => ipcRenderer.invoke('get-server-port'),
+  
   // Events from main
   onRegionSelected: (cb) => ipcRenderer.on('region-selected', (_, region) => cb(region)),
   onOverlayCancelled: (cb) => ipcRenderer.on('overlay-cancelled', () => cb()),
