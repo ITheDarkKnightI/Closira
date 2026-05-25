@@ -132,11 +132,20 @@ function createServer(){
 }
 
 function getJavaPath() {
-    return 'java'; // Тестовий шлях
+	const javaExecutable = process.platform === 'win32' ? 'java.exe' : 'java';
+    return path.join(getBasePath(), 'resources', 'jre', 'bin', javaExecutable);
 }
 
 function getJarPath() {
-    return path.join(__dirname, '..', '..', 'Backend', 'target', 'PR-backend-1.0-SNAPSHOT.jar');
+    return path.join(getBasePath(), 'resources', 'PR-backend-1.0-SNAPSHOT.jar');
+}
+
+function getBasePath() {
+  if (app.isPackaged) {
+    return process.resourcesPath;
+  } else {
+    return path.join(__dirname, '..');
+  }
 }
 
 ipcMain.on('popup-resize', (event, { width, height, region }) => {
