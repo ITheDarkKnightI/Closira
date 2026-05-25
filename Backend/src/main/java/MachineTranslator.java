@@ -20,6 +20,7 @@ import java.util.Objects;
 public class MachineTranslator {
 
     private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
+    private final static int availableCores = Runtime.getRuntime().availableProcessors();
     private final ZooModel<long[][], NDList> ENCODER;
     private final ZooModel<DecoderInput, NDList> DECODER;
     private final HuggingFaceTokenizer TOKENIZER;
@@ -53,7 +54,9 @@ public class MachineTranslator {
                                                  Class<I> inputType, Class<O> outputType){
         log.info("Criteria create");
         return Criteria.builder().setTypes(inputType, outputType).optModelPath(modelPath).optModelName(modelName)
-                .optTranslator(translator).optEngine("OnnxRuntime").build();
+                .optTranslator(translator).optEngine("OnnxRuntime").optOption("ai.djl.onnxruntime.num_threads", String.valueOf(availableCores))
+                // Количество потоков для параллельного выполнения независимых операторов в графе (inter-op)
+                .optOption("ai.djl.onnxruntime.inter_op_num_threads", String.valueOf(availableCores)).build();
     }
 
     /**
