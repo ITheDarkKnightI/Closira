@@ -84,6 +84,16 @@ async function waitForServer() {
 
   showLoadingError('Сервер не відповів за відведений час');
 }
+waitForServer();
+
+// Блокуємо дії якщо сервер не готовий
+function requireServer() {
+  if (!serverReady) {
+    setStatus('Сервер ще завантажується…', 'error');
+    return false;
+  }
+  return true;
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
