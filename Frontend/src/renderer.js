@@ -151,6 +151,7 @@ srcText.addEventListener('keydown', function(e) {
 });
 
 document.getElementById('translateBtn').addEventListener('click', async function() {
+  if(!requireServer()) return;
   var text = srcText.value.trim();
   if (!text) return;
   var tl = document.getElementById('tgtLang').value;
@@ -376,6 +377,7 @@ async function runOCRandTranslate(croppedURL, region) {
 
 document.getElementById('captureBtn').addEventListener('click', async function() {
   if (!window.electronAPI) { setStatus('Тільки в Electron', 'error'); return; }
+  if(!requireServer()) return;
   setStatus('Захоплення екрану…', '');
   this.style.opacity = '0.6'; this.style.pointerEvents = 'none';
   var result = await window.electronAPI.captureScreen();
