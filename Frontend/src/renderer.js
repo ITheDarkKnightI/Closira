@@ -29,6 +29,17 @@ function showLoadingError(msg) {
   loadingTitle.textContent = 'Помилка підключення';
   loadingSub.textContent = 'Перевірте, чи запущено Java, або перезапустіть додаток.';
 }
+
+
+async function pingHealth() {
+  if (!url) return false;
+  try {
+    const resp = await fetch(url + '/connect', { signal: AbortSignal.timeout(3000) });
+    return resp.ok;
+  } catch(e) {
+    return false;
+  }
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
