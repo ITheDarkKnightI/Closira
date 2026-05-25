@@ -22,6 +22,13 @@ const loadingErrorText = document.getElementById('loadingErrorText');
 function setLoadingProgress(pct) {
   loadingProgressFill.style.width = pct + '%';
 }
+
+function showLoadingError(msg) {
+  loadingError.style.display = 'flex';
+  loadingErrorText.textContent = msg;
+  loadingTitle.textContent = 'Помилка підключення';
+  loadingSub.textContent = 'Перевірте, чи запущено Java, або перезапустіть додаток.';
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
