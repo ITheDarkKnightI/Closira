@@ -7,7 +7,21 @@ var capturedDataURL = null;
 var currentHotkey = 'Ctrl+Shift+T';
 var isRecordingHotkey = false;
 let url = "";
+let serverReady = false;
 
+// ═══════════════════════════════════════════
+// ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
+// ═══════════════════════════════════════════
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingTitle = document.getElementById('loadingTitle');
+const loadingSub = document.getElementById('loadingSub');
+const loadingProgressFill = document.getElementById('loadingProgressFill');
+const loadingError = document.getElementById('loadingError');
+const loadingErrorText = document.getElementById('loadingErrorText');
+
+function setLoadingProgress(pct) {
+  loadingProgressFill.style.width = pct + '%';
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
