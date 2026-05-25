@@ -1,10 +1,13 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut } = require('electron');
+const {spawn, exec} = require('child_process');
 const path = require('path');
 
 let mainWindow;
 let overlayWindow;
 let popupWindow;
 let currentHotkey = 'CommandOrControl+Shift+T';
+let javaProcess;
+let isAppQuitting = false;
 
 // ── MAIN WINDOW ──────────────────────────────────────────
 function createMainWindow() {
@@ -104,6 +107,46 @@ function showPopup(data) {
   }
 }
 
+function createServer(){
+	return new Promise((resolve, reject) =>{
+		javaProcess = spawn(getJavaPath(), ['-jar', getJarPath()]);
+
+        javaProcess.stdout.on('data', (data) => {
+            const output = data.toString();
+            console.log('Java:', output);
+
+            const match = output.match(/SERVER_PORT: (\d+)/);
+            if (match) {
+				console.log("Matched: " + match[1]);
+				mainWindow.webContents.send('set-server-port', parseInt(match[1]));
+                resolve(parseInt(match[1]));
+            }
+        });
+
+        javaProcess.stderr.on('data', (data) => {
+            console.error('Java error:', data.toString());
+        });
+
+        javaProcess.on('error', reject);
+	});
+}
+
+function getJavaPath() {
+	const javaExecutable = process.platform === 'win32' ? 'java.exe' : 'java';
+    return path.join(getBasePath(), 'resources', 'jre', 'bin', javaExecutable);
+}
+
+function getJarPath() {
+    return path.join(getBasePath(), 'resources', 'PR-backend-1.0-SNAPSHOT.jar');
+}
+
+function getBasePath() {
+  if (app.isPackaged) {
+    return process.resourcesPath;
+  } else {
+    return path.join(__dirname, '..');
+  }
+}
 
 ipcMain.on('popup-resize', (event, { width, height, region }) => {
   if (!popupWindow || popupWindow.isDestroyed()) return;
@@ -184,10 +227,12 @@ ipcMain.on('overlay-cancelled', () => {
 });
 ipcMain.on('window-minimize', () => mainWindow?.minimize());
 ipcMain.on('window-close', () => app.quit());
-ipcMain.on('window-close', () => app.quit());
 ipcMain.on('close-popup', () => { if (popupWindow && !popupWindow.isDestroyed()) popupWindow.hide(); }); 
+
+let serverPort = null;
+ipcMain.handle('get-server-port', () => serverPort);
 // ── APP ───────────────────────────────────────────────────
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createMainWindow();
   createOverlayWindow();
   createPopupWindow();
@@ -195,7 +240,45 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
   });
+  try{
+	  console.log("Create server");
+	  await createServer();
+  }catch(err){
+	  console.error('Failed to start server:', err);
+       app.quit();
+  }
 });
 
-app.on('will-quit', () => globalShortcut.unregisterAll());
+app.on('before-quit', (event) => {
+  if (javaProcess && !isAppQuitting) {
+    event.preventDefault();
+    console.log("Stopping the Java-process...");
+
+    if (process.platform === 'win32') {
+      const command = `taskkill /pid ${javaProcess.pid} /f /t`;
+      
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          console.error('error - taskkill:', err);
+        } else {
+          console.log('Java-process is killed');
+        }
+        
+        // Close Electron
+        isAppQuitting = true;
+        app.quit();
+      });
+    } else {
+      // For linux in future
+	  try { javaProcess.kill('SIGKILL'); } catch (e) {}
+      isAppQuitting = true;
+      app.quit();
+    }
+  }
+});
+
+app.on('will-quit', () => {
+	console.log("Exit");
+	globalShortcut.unregisterAll();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

@@ -6,7 +6,94 @@ var currentIndex = 0;
 var capturedDataURL = null;
 var currentHotkey = 'Ctrl+Shift+T';
 var isRecordingHotkey = false;
+let url = "";
+let serverReady = false;
 
+// ═══════════════════════════════════════════
+// ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
+// ═══════════════════════════════════════════
+const loadingOverlay = document.getElementById('loadingOverlay');
+const loadingTitle = document.getElementById('loadingTitle');
+const loadingSub = document.getElementById('loadingSub');
+const loadingProgressFill = document.getElementById('loadingProgressFill');
+const loadingError = document.getElementById('loadingError');
+const loadingErrorText = document.getElementById('loadingErrorText');
+
+function setLoadingProgress(pct) {
+  loadingProgressFill.style.width = pct + '%';
+}
+
+function showLoadingError(msg) {
+  loadingError.style.display = 'flex';
+  loadingErrorText.textContent = msg;
+  loadingTitle.textContent = 'Помилка підключення';
+  loadingSub.textContent = 'Перевірте, чи запущено Java, або перезапустіть додаток.';
+}
+
+
+async function pingHealth() {
+  if (!url) return false;
+  try {
+    const resp = await fetch(url + '/connect', { signal: AbortSignal.timeout(3000) });
+    return resp.ok;
+  } catch(e) {
+    return false;
+  }
+}
+
+async function waitForServer() {
+  setLoadingProgress(10);
+  loadingTitle.textContent = 'Запуск сервера…';
+  loadingSub.textContent = 'Завантаження моделей перекладу. Це може зайняти кілька секунд.';
+
+  let portWait = 0;
+  while (!url && portWait < 120) {
+    await new Promise(r => setTimeout(r, 500));
+    portWait++;
+  }
+  if (!url) {
+    showLoadingError('Сервер не відповів: порт не отримано');
+    return;
+  }
+
+  setLoadingProgress(30);
+  loadingTitle.textContent = 'Підключення до сервера…';
+
+  let attempts = 0;
+  const maxAttempts = 60;
+  while (attempts < maxAttempts) {
+    const ok = await pingHealth();
+    if (ok) {
+      setLoadingProgress(100);
+      loadingTitle.textContent = 'Готово!';
+      loadingSub.textContent = 'Сервер готовий до роботи.';
+      await new Promise(r => setTimeout(r, 400));
+      // ховаємо оверлей
+      loadingOverlay.classList.add('hidden');
+      setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+      serverReady = true;
+      setStatus('Готовий до роботи', '');
+      return;
+    }
+    attempts++;
+    // Анімація прогресу 30–90%
+    setLoadingProgress(30 + Math.round((attempts / maxAttempts) * 60));
+    loadingTitle.textContent = `Завантаження моделей… (${attempts}/${maxAttempts})`;
+    await new Promise(r => setTimeout(r, 1500));
+  }
+
+  showLoadingError('Сервер не відповів за відведений час');
+}
+waitForServer();
+
+// Блокуємо дії якщо сервер не готовий
+function requireServer() {
+  if (!serverReady) {
+    setStatus('Сервер ще завантажується…', 'error');
+    return false;
+  }
+  return true;
+}
 // ═══════════════════════════════════════════
 // ВКЛАДКИ
 // ═══════════════════════════════════════════
@@ -33,14 +120,25 @@ document.getElementById('btnClose').addEventListener('click', function() {
 // ═══════════════════════════════════════════
 // ПЕРЕКЛАД
 // ═══════════════════════════════════════════
-async function googleTranslate(text, tl, sl) {
+async function googleTranslate(text1, tl, sl) {
   sl = sl || 'auto';
-  var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&q=' + encodeURIComponent(text);
-  var resp = await fetch(url);
+  console.log(`Post request: srcLan:${sl}, trgLan:${tl}`);
+  var current_url = url + "/translate";
+  var resp = await fetch(current_url, {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  }, 
+	  body: JSON.stringify({srcLan: sl, trgLan: tl, text: text1})
+  });
   if (!resp.ok) throw new Error('Помилка ' + resp.status);
   var data = await resp.json();
-  return data[0].map(function(x) { return x[0]; }).filter(Boolean).join('');
+  return data.text;
 }
+
+window.electronAPI.onReceivePort((port) => {
+	url = `http://localhost:${port}`;
+});
 
 var srcText = document.getElementById('srcText');
 var resultArea = document.getElementById('resultArea');
@@ -53,6 +151,7 @@ srcText.addEventListener('keydown', function(e) {
 });
 
 document.getElementById('translateBtn').addEventListener('click', async function() {
+  if(!requireServer()) return;
   var text = srcText.value.trim();
   if (!text) return;
   var tl = document.getElementById('tgtLang').value;
@@ -278,6 +377,7 @@ async function runOCRandTranslate(croppedURL, region) {
 
 document.getElementById('captureBtn').addEventListener('click', async function() {
   if (!window.electronAPI) { setStatus('Тільки в Electron', 'error'); return; }
+  if(!requireServer()) return;
   setStatus('Захоплення екрану…', '');
   this.style.opacity = '0.6'; this.style.pointerEvents = 'none';
   var result = await window.electronAPI.captureScreen();
