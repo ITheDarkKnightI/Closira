@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, desktopCapturer, screen, globalShortcut } = require('electron');
-const {spawn} = require('child_process');
+const {spawn, exec} = require('child_process');
 const path = require('path');
 
 let mainWindow;
@@ -7,6 +7,7 @@ let overlayWindow;
 let popupWindow;
 let currentHotkey = 'CommandOrControl+Shift+T';
 let javaProcess;
+let isAppQuitting = false;
 
 // ── MAIN WINDOW ──────────────────────────────────────────
 function createMainWindow() {
@@ -239,14 +240,36 @@ app.whenReady().then(async () => {
   }
 });
 
+app.on('before-quit', (event) => {
+  if (javaProcess && !isAppQuitting) {
+    event.preventDefault();
+    console.log("Stopping the Java-process...");
+
+    if (process.platform === 'win32') {
+      const command = `taskkill /pid ${javaProcess.pid} /f /t`;
+      
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          console.error('error - taskkill:', err);
+        } else {
+          console.log('Java-process is killed');
+        }
+        
+        // Close Electron
+        isAppQuitting = true;
+        app.quit();
+      });
+    } else {
+      // For linux in future
+	  try { javaProcess.kill('SIGKILL'); } catch (e) {}
+      isAppQuitting = true;
+      app.quit();
+    }
+  }
+});
+
 app.on('will-quit', () => {
 	console.log("Exit");
-	globalShortcut.unregisterAll()
-	if(javaProcess){
-		try{ javaProcess.kill('SIGTERM');} catch (e){}
-		setTimeout(() => {
-			try{if(javaProcess) javaProcess.kill('SIGKILL');} catch(e) {}
-		}, 1500);
-	}
+	globalShortcut.unregisterAll();
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
