@@ -48,7 +48,7 @@ html, body { height: 100vh; overflow: hidden; background: #111827; color: #c8d0d
 .hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .hero-title { display: flex; align-items: center; gap: 10px; font-size: clamp(18px,2.5vw,26px); font-weight: 600; color: #e8edf5; }
 .hero-title i { font-size: clamp(20px,2.6vw,28px); color: #2d6be4; }
-.hero-sub { font-size: clamp(15px,1.1vw,13px); color: #4a5568; line-height: 1.6; max-width: 460px; }
+.hero-sub { font-size: clamp(15px,1.1vw,13px); color: #c8d0dc; line-height: 1.6; max-width: 460px; }
 
 .lang-row { display: flex; align-items: center; gap: 8px; width: 100%; }
 .lang-sel-wrap { flex: 1; position: relative; min-width: 0; }
@@ -172,11 +172,11 @@ textarea::placeholder { color: #8a9ab2; }
 .ov-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .ov-hero-title { display: flex; align-items: center; gap: 10px; font-size: clamp(16px,2vw,22px); font-weight: 600; color: #e8edf5; }
 .ov-hero-title i { font-size: clamp(18px,2.2vw,24px); color: #2d6be4; }
-.ov-hero-sub { font-size: clamp(15px,1.1vw,12px); color: #4a5568; line-height: 1.5; max-width: 500px; }
+.ov-hero-sub { font-size: clamp(15px,1.1vw,12px); color: #c8d0dc; line-height: 1.5; max-width: 500px; }
 
 /* Два стовпці в оверлеї */
 .ov-layout { display: flex; gap: clamp(10px,1.5vw,16px); width: 100%; align-items: flex-start; flex: 1; min-height: 0; }
-.ov-left { flex: 1; display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); min-width: 0; overflow-y: auto; }
+.ov-left { flex: 1; display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); min-width: 0; overflow-y: auto; min-height: 0; }
 .ov-right { width: clamp(180px,25vw,240px); display: flex; flex-direction: column; gap: clamp(8px,1.2vw,12px); flex-shrink: 0; }
 
 .preview-card { width: 100%; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 12px; overflow: hidden; }
@@ -193,7 +193,11 @@ textarea::placeholder { color: #8a9ab2; }
 .ov-results { display: flex; gap: 8px; width: 100%; }
 .ov-box { flex: 1; background: #1a2438; border: 1px solid #1e2a3d; border-radius: 10px; overflow: hidden; min-width: 0; }
 .ov-box-header { padding: 8px 12px; border-bottom: 1px solid #1e2a3d; font-size: clamp(9px,1vw,10px); font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: #8a9ab2; display: flex; justify-content: space-between; align-items: center; }
-.ov-box-body { padding: 10px 12px; font-size: clamp(15px,1.2vw,13px); color: #8a9ab2; min-height: clamp(40px,6vh,60px); max-height: clamp(80px,14vh,140px); overflow-y: auto; line-height: 1.6; word-break: break-word; }
+.ov-box-body { padding: 10px 12px; font-size: clamp(15px,1.2vw,13px); color: #8a9ab2; line-height: 1.6; word-break: break-word; max-height: clamp(100px, 20vh, 420px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #307fff transparent; }
+.ov-box-body::-webkit-scrollbar { width: 4px; }
+.ov-box-body::-webkit-scrollbar-track { background: transparent; }
+.ov-box-body::-webkit-scrollbar-thumb { background: #307fff; border-radius: 4px; }
+.ov-box-body::-webkit-scrollbar-thumb:hover { background: #2d6be4; }
 .ov-box-body.has-text { color: #c8d0dc; }
 .ov-box-body.result.has-text { color: #2d6be4; }
 
@@ -269,6 +273,20 @@ textarea::placeholder { color: #8a9ab2; }
   height: 0;
 }
 
+/* Скроллбари для textarea і result-area */
+textarea, .result-area {
+  scrollbar-width: thin;
+  scrollbar-color: #307fff transparent;
+}
+textarea::-webkit-scrollbar,
+.result-area::-webkit-scrollbar { width: 4px; }
+textarea::-webkit-scrollbar-track,
+.result-area::-webkit-scrollbar-track { background: transparent; border-radius: 10px; }
+textarea::-webkit-scrollbar-thumb,
+.result-area::-webkit-scrollbar-thumb { background: #307fff; border-radius: 10px; }
+textarea::-webkit-scrollbar-thumb:hover,
+.result-area::-webkit-scrollbar-thumb:hover { background: #2d6be4; }
+
 /* LOADING OVERLAY */
 .loading-overlay {
   position: fixed; inset: 0; z-index: 9999;
@@ -303,7 +321,7 @@ textarea::placeholder { color: #8a9ab2; }
   font-size: clamp(14px,1.5vw,16px); font-weight: 600; color: #e8edf5;
 }
 .loading-sub {
-  font-size: clamp(11px,1.1vw,13px); color: #4a6080; line-height: 1.6;
+  font-size: clamp(11px,1.1vw,13px); color: #c8d0dc; line-height: 1.6;
 }
 .loading-progress-wrap { width: 100%; }
 .loading-progress-bar {
