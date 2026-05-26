@@ -444,17 +444,14 @@ function initCustomScrollbar(el) {
   if (el._scrollbarInit) return;
   el._scrollbarInit = true;
 
- 
   var wrapper = document.createElement('div');
   wrapper.style.cssText ='position:relative;overflow:hidden;flex:1;min-height:0;width:100%;';
   el.parentNode.insertBefore(wrapper, el);
   wrapper.appendChild(el);
 
-
   var track = document.createElement('div');
   track.style.cssText = 'position:absolute;right:3px;top:4px;bottom:4px;width:4px;border-radius:10px;background:transparent;opacity:0;transition:opacity 0.2s;pointer-events:none;z-index:10;';
   wrapper.appendChild(track);
-
 
   var thumb = document.createElement('div');
   thumb.style.cssText = 'position:absolute;width:4px;border-radius:10px;background:#307fff;cursor:pointer;transition:background 0.15s;';
@@ -477,10 +474,8 @@ function initCustomScrollbar(el) {
   el.addEventListener('scroll', update);
   new ResizeObserver(update).observe(el);
 
-
   wrapper.addEventListener('mouseenter', function() { track.style.opacity = '1'; });
   wrapper.addEventListener('mouseleave', function() { track.style.opacity = '0'; });
-
 
   var dragging = false, startY = 0, startScroll = 0;
   thumb.addEventListener('mousedown', function(e) {
@@ -500,7 +495,6 @@ function initCustomScrollbar(el) {
   document.addEventListener('mouseup', function() {
     if (dragging) { dragging = false; document.body.style.userSelect = ''; }
   });
-
 
   thumb.addEventListener('mouseenter', function() { thumb.style.background = '#2d6be4'; });
   thumb.addEventListener('mouseleave', function() { thumb.style.background = '#307fff'; });
