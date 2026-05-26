@@ -263,17 +263,17 @@ textarea::placeholder { color: #8a9ab2; }
 .sdot.error { background: #e05555; }
 .sdot.ok { background: #34c759; }
 
-/* hide scrollbar but keep scroll functional */
+
 * {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
 }
 *::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-/* Скроллбари для textarea і result-area */
+/* Скроллбари */
 textarea, .result-area {
   scrollbar-width: thin;
   scrollbar-color: #307fff transparent;
