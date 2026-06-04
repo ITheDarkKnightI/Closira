@@ -1,7 +1,9 @@
 import io.javalin.Javalin;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.BreakIterator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Main {
@@ -29,11 +31,30 @@ public class Main {
                             return;
                         }
                         TranslationRequest req = ctx.bodyAsClass(TranslationRequest.class);
-                        String translated = translator.translate(req.text(), req.srcLan(), req.trgLan());
-                        if(translated == null){
+                        BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.forLanguageTag(req.srcLan()));
+                        iterator.setText(req.text());
+                        StringBuilder translated = new StringBuilder();
+                        int start = iterator.first();
+                        for(int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
+                            String sentence = req.text().substring(start, end);
+                            
+                            String trimmedSentence = sentence.trim();
+                            if (!trimmedSentence.isEmpty()) {
+                                String translatedSentence = translator.translate(trimmedSentence, req.srcLan(), req.trgLan());
+                                translated.append(translatedSentence);
+
+                                // Восстанавливаем пробелы, которые были между предложениями в оригинале
+                                if (sentence.endsWith(" ")) {
+                                    translated.append(" ");
+                                } else if (end < req.text().length()){
+                                    translated.append(" ");
+                                }
+                            }
+                        }
+                        if(translated.isEmpty()){
                             ctx.status(400);
                         }else
-                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), translated));
+                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), translated.toString()));
                     });
                     config.routes.get("/connect", ctx -> {
                         if(translatorRef.get() != null)
