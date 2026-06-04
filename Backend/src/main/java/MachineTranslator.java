@@ -156,8 +156,14 @@ public class MachineTranslator {
     }
 
     private String clearText(String translatedText){
-        String text = translatedText.substring(0, translatedText.length()-4);
-        text = text.substring(text.indexOf(" ") + 1);
+        String text = translatedText;
+        if (text.endsWith("</s>")) {
+            text = text.substring(0, text.length() - 4);
+        }
+        int spaceIdx = text.indexOf(" ");
+        if (spaceIdx >= 0) {
+            text = text.substring(spaceIdx + 1);
+        }
         return text;
     }
     public boolean isLoaded(){
