@@ -121,7 +121,6 @@ document.getElementById('btnClose').addEventListener('click', function() {
 // ПЕРЕКЛАД
 // ═══════════════════════════════════════════
 async function googleTranslate(text1, tl, sl) {
-  sl = sl || 'auto';
   console.log(`Post request: srcLan:${sl}, trgLan:${tl}`);
   var current_url = url + "/translate";
   var resp = await fetch(current_url, {
@@ -332,6 +331,12 @@ function setProgress(pct) {
 
 async function runOCRandTranslate(croppedURL, region) {
   var lang = document.getElementById('ocrLang').value;
+  var sl;
+  switch(lang){
+	  case "eng": sl = "eng_Latn"; break;
+	  case "ukr": sl = "ukr_Cyrl"; break;
+	  default: sl = "eng_Latn"; break;
+  }
   var tl = document.getElementById('ovTgtLang').value;
   var ocrBox = document.getElementById('ocrResult');
   var transBox = document.getElementById('ovTransResult');
@@ -354,7 +359,7 @@ async function runOCRandTranslate(croppedURL, region) {
     if (!text) { ocrBox.textContent = 'Текст не знайдено'; setProgress(0); setStatus('Текст не знайдено', 'error'); return; }
     ocrBox.textContent = text; ocrBox.classList.add('has-text');
     setStatus('Перекладаємо…', ''); setProgress(80);
-    var translated = await googleTranslate(text, tl);
+    var translated = await googleTranslate(text, tl, sl);
     transBox.textContent = translated; transBox.classList.add('has-text');
     setProgress(100);
     setTimeout(function() { setProgress(0); }, 600);
