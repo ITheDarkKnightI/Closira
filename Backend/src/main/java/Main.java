@@ -37,7 +37,7 @@ public class Main {
                         int start = iterator.first();
                         for(int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
                             String sentence = req.text().substring(start, end);
-                            
+
                             String trimmedSentence = sentence.trim();
                             if (!trimmedSentence.isEmpty()) {
                                 String translatedSentence = translator.translate(trimmedSentence, req.srcLan(), req.trgLan());

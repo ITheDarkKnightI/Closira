@@ -22,7 +22,9 @@ public class MachineTranslator {
     private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
     private final static int availableCores = Runtime.getRuntime().availableProcessors();
     private final ZooModel<long[][], NDList> ENCODER;
+    private final Predictor<long[][], NDList> encoderPredictor;
     private final ZooModel<DecoderInput, NDList> DECODER;
+    private final Predictor<DecoderInput, NDList> decoderPredictor;
     private final HuggingFaceTokenizer TOKENIZER;
     private static final Logger log = LoggerFactory.getLogger(MachineTranslator.class);
     private boolean status = false;
@@ -36,8 +38,10 @@ public class MachineTranslator {
         try {
             this.DECODER = createCriteria(decoderPath, "decoder_model_merged_quantized.onnx",
                     new DecoderTranslator(), DecoderInput.class, NDList.class).loadModel();
+            this.decoderPredictor = DECODER.newPredictor();
             this.ENCODER = createCriteria(encoderPath, "encoder_model_quantized.onnx",
                     new EncoderTranslator(), long[][].class, NDList.class).loadModel();
+            this.encoderPredictor = ENCODER.newPredictor();
             this.TOKENIZER = HuggingFaceTokenizer.newInstance(tokenizerPath);
         }catch(Exception e){
             throw new RuntimeException("Error initializing objects: ", e);
@@ -67,7 +71,7 @@ public class MachineTranslator {
      * @return
      */
 
-    public String translate(String srcText, String srcLang, String targLang){
+    public synchronized String translate(String srcText, String srcLang, String targLang){
         Encoding encoding = TOKENIZER.encode(srcText, true, false);
         long[] indices = encoding.getIds();
         long[] attentionMask = encoding.getAttentionMask();
@@ -78,9 +82,7 @@ public class MachineTranslator {
         ArrayList<Long> resultTokenList = new ArrayList<>();
         log.info("Data for translate initialized");
 
-        try (NDManager manager = NDManager.newBaseManager();
-             Predictor<long[][], NDList> encoderPredictor = ENCODER.newPredictor();
-             Predictor<DecoderInput, NDList> decoderPredictor = DECODER.newPredictor()){
+        try (NDManager manager = NDManager.newBaseManager()){
             log.info("Start of translating");
             long currentToken = 2L;
             NDList encoderOutput = encoderPredictor.predict(new long[][]{indices, attentionMask});
