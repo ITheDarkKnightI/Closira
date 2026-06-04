@@ -13,7 +13,7 @@
       overflow: hidden;
       user-select: none;
       height: auto;
-      max-height: 100vh;
+      width: 340px;
     }
 
     .titlebar {
@@ -118,14 +118,15 @@
     });
 
     function reportSize(region) {
-      
       requestAnimationFrame(() => {
-        const titlebar = document.querySelector('.titlebar');
-        const content = document.getElementById('content');
-        const totalH = titlebar.offsetHeight + content.offsetHeight + 2;
-        if (window.electronAPI && window.electronAPI.resizePopup) {
-          window.electronAPI.resizePopup({ width: POPUP_WIDTH, height: totalH, region });
-        }
+        requestAnimationFrame(() => {
+          const titlebar = document.querySelector('.titlebar');
+          const content = document.getElementById('content');
+          const totalH = titlebar.offsetHeight + content.scrollHeight + 4;
+          if (window.electronAPI && window.electronAPI.resizePopup) {
+            window.electronAPI.resizePopup({ width: POPUP_WIDTH, height: totalH, region });
+          }
+        });
       });
     }
 
