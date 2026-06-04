@@ -31,6 +31,10 @@ public class Main {
                             return;
                         }
                         TranslationRequest req = ctx.bodyAsClass(TranslationRequest.class);
+                        if(req.text() == null || req.text().isBlank()){
+                            ctx.status(400);
+                            return;
+                        }
                         BreakIterator iterator = BreakIterator.getSentenceInstance(Locale.forLanguageTag(req.srcLan()));
                         iterator.setText(req.text());
                         StringBuilder translated = new StringBuilder();
