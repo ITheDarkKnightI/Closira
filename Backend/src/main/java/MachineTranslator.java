@@ -11,7 +11,6 @@ import ai.djl.translate.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.PropertyEditorSupport;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Objects;
 
 public class MachineTranslator {
 
-    private final int DECODER_LAYERS = 12; // Constant for working only with NLLB
+    private final int DECODER_LAYERS = 12; // Constant for working only with NLLB-200 quantized
     private final static int availableCores = Runtime.getRuntime().availableProcessors();
     private final ZooModel<long[][], NDList> ENCODER;
     private final Predictor<long[][], NDList> encoderPredictor;
@@ -50,8 +49,7 @@ public class MachineTranslator {
         log.info("Model is initialized");
     }
     /**
-     A method that returns a Criteria<I, O>
-     ...Params.description...
+     * A method that returns a Criteria<I, O> for initializing the model
      */
     private <I, O> Criteria<I, O> createCriteria(Path modelPath, String modelName,
                                                  Translator<I, O> translator,
@@ -64,11 +62,13 @@ public class MachineTranslator {
     }
 
     /**
+     * Machine translation via NLLB-200
+     * The link showing all language codes: <a href="https://github.com/facebookresearch/flores/blob/main/flores200/README.md#languages-in-flores-200">languages-in-flores-200</a>
      *
-     * @param srcText
-     * @param srcLang
-     * @param targLang
-     * @return
+     * @param srcText Source text
+     * @param srcLang Code of source language (for example "eng_Latn")
+     * @param targLang Code of target language (same as srcLang)
+     * @return Returns the translated text, stripped of additional identifiers.
      */
 
     public synchronized String translate(String srcText, String srcLang, String targLang){
@@ -136,11 +136,14 @@ public class MachineTranslator {
     }
 
     /**
+     * Initializes an empty Key/Value cache for the decoder.
+     * Generates zero-filled tensors for both decoder self-attention and encoder-decoder cross-attention.
      *
-     * @param manager
-     * @param params
-     * @param encoderSeqLength
-     * @return
+     * @param manager NDManager from the upper scope. It must be passed from the outside
+     * so the native memory tensors are not prematurely destroyed when a local scope closes.
+     * @param params Model configuration parameters (number of layers, attention heads, and head dimensions)
+     * @param encoderSeqLength  length of input sentence (number of tokens)
+     * @return An NDList representing the initial Key/Value cache for all model layers.
      */
 
     private NDList createInitialKVCache(NDManager manager, ModelParameters params, int encoderSeqLength){
@@ -157,6 +160,13 @@ public class MachineTranslator {
         return KVCache;
     }
 
+    /**
+     * Cleans the translated text by removing special model tokens
+     * it strips the trailing End-Of-Sequence (EOS) token and the leading language tag
+     *
+     * @param translatedText The raw decoded string output from the model
+     * @return               The cleaned string containing only the actual translation
+     */
     private String clearText(String translatedText){
         String text = translatedText;
         if (text.endsWith("</s>")) {
