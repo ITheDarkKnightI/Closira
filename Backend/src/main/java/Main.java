@@ -14,6 +14,7 @@ public class Main {
 
         HashMap<String, Path> paths = new HashMap<>();
         Path homePath = Paths.get(System.getProperty("user.home"), "Downloads");
+        System.out.println(homePath);
         paths.put("encoder", homePath);
         paths.put("decoder", homePath);
         paths.put("tokenizer", homePath);
@@ -47,7 +48,6 @@ public class Main {
                                 String translatedSentence = translator.translate(trimmedSentence, req.srcLan(), req.trgLan());
                                 translated.append(translatedSentence);
 
-                                // Восстанавливаем пробелы, которые были между предложениями в оригинале
                                 if (sentence.endsWith(" ")) {
                                     translated.append(" ");
                                 } else if (end < req.text().length()){
@@ -70,6 +70,6 @@ public class Main {
         ).start(0);
         int port = app.port();
         System.out.println("SERVER_PORT: " + port);
-        translatorRef.set(new MachineTranslator(conf));
+        //translatorRef.set(new MachineTranslator(conf));
     }
 }
