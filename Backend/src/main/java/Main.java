@@ -14,7 +14,6 @@ public class Main {
 
         HashMap<String, Path> paths = new HashMap<>();
         Path homePath = Paths.get(System.getProperty("user.home"), "Downloads");
-        System.out.println(homePath);
         paths.put("encoder", homePath);
         paths.put("decoder", homePath);
         paths.put("tokenizer", homePath);
