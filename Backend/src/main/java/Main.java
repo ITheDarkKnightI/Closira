@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Main {
 
     private static final AtomicReference<MachineTranslator> translatorRef = new AtomicReference<>(null);
+    private final DataBase DATA_BASE = new DataBase();
 
     public static void main(String[] args){
 
@@ -66,9 +67,11 @@ public class Main {
                             ctx.status(503);
                     });
                 }
-        ).start(0);
-        int port = app.port();
-        System.out.println("SERVER_PORT: " + port);
+        );
+//        int port = app.port();
+//        System.out.println("SERVER_PORT: " + port);
         //translatorRef.set(new MachineTranslator(conf));
+
+
     }
 }
