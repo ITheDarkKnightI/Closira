@@ -1,7 +1,10 @@
 import io.javalin.Javalin;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.BreakIterator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
@@ -9,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Main {
 
     private static final AtomicReference<MachineTranslator> translatorRef = new AtomicReference<>(null);
-    private final DataBase DATA_BASE = new DataBase();
+    private static final DataBase DATA_BASE = new DataBase();
 
     public static void main(String[] args){
 
@@ -61,17 +64,24 @@ public class Main {
                             ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), translated.toString()));
                     });
                     config.routes.get("/connect", ctx -> {
-                        if(translatorRef.get() != null)
+                        if(translatorRef.get() != null) {
+                            ArrayList<LanguageInfo> languages = new ArrayList<>();
+                            ResultSet languagesData = DATA_BASE.getTheSet("languages", "id", "name",
+                                    "nllb_name", "ocr_name");
+                            while(languagesData.next()){
+                                languages.add(new LanguageInfo(languagesData.getInt("id"),
+                                        languagesData.getString("name"), languagesData.getString("nllb_name"),
+                                        languagesData.getString("ocr_name")));
+                            }
+                            ctx.json(languages);
                             ctx.status(200);
-                        else
+                        }else
                             ctx.status(503);
                     });
                 }
         );
-//        int port = app.port();
-//        System.out.println("SERVER_PORT: " + port);
-        //translatorRef.set(new MachineTranslator(conf));
-
-
+        int port = app.port();
+        System.out.println("SERVER_PORT: " + port);
+//        translatorRef.set(new MachineTranslator(conf));
     }
 }
