@@ -40,3 +40,4 @@ build/
 node_modules/
 dist/
 frontend/
+resources/

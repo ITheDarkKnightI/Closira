@@ -8,7 +8,7 @@ var currentHotkey = 'Ctrl+Shift+T';
 var isRecordingHotkey = false;
 let url = "";
 let serverReady = false;
-
+let languages = null;
 // ═══════════════════════════════════════════
 // ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
 // ═══════════════════════════════════════════
@@ -18,6 +18,22 @@ const loadingSub = document.getElementById('loadingSub');
 const loadingProgressFill = document.getElementById('loadingProgressFill');
 const loadingError = document.getElementById('loadingError');
 const loadingErrorText = document.getElementById('loadingErrorText');
+// Src and Trg languages
+const mainSrc = document.getElementById('srcLang');
+const mainTrg = document.getElementById('tgtLang');
+const ocrSrc = document.getElementById('ocrLang');
+const ocrTrg = document.getElementById('ovTgtLang');
+
+function addOption(name, nllbValue, ocrValue){
+  let mainOption = new Option(name, nllbValue);
+  let ocrOption = new Option(name, ocrValue);
+
+  mainSrc.add(mainOption);
+  mainTrg.add(mainOption);
+  	
+  ocrSrc.add(ocrOption);
+  ocrTrg.add(ocrOption);
+}
 
 function setLoadingProgress(pct) {
   loadingProgressFill.style.width = pct + '%';
@@ -35,6 +51,7 @@ async function pingHealth() {
   if (!url) return false;
   try {
     const resp = await fetch(url + '/connect', { signal: AbortSignal.timeout(3000) });
+    languages = await resp.json();
     return resp.ok;
   } catch(e) {
     return false;
@@ -64,6 +81,9 @@ async function waitForServer() {
   while (attempts < maxAttempts) {
     const ok = await pingHealth();
     if (ok) {
+      if(languages != null){
+        languages.forEach(language => {addOption(language.name, language.nllbName, language.ocrName)});
+      }
       setLoadingProgress(100);
       loadingTitle.textContent = 'Готово!';
       loadingSub.textContent = 'Сервер готовий до роботи.';
