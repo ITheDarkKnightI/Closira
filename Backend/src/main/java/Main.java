@@ -29,11 +29,11 @@ public class Main {
         var app = Javalin.create(
                 config -> {
                     config.routes.post("/translate", ctx -> {
-                        MachineTranslator translator = translatorRef.get();
-                        if(translator == null){
-                            ctx.status(503);
-                            return;
-                        }
+//                        MachineTranslator translator = translatorRef.get();
+//                        if(translator == null){
+//                            ctx.status(503);
+//                            return;
+//                        }
                         TranslationRequest req = ctx.bodyAsClass(TranslationRequest.class);
                         if(req.text() == null || req.text().isBlank()){
                             ctx.status(400);
@@ -43,28 +43,28 @@ public class Main {
                         iterator.setText(req.text());
                         StringBuilder translated = new StringBuilder();
                         int start = iterator.first();
-                        for(int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
-                            String sentence = req.text().substring(start, end);
-
-                            String trimmedSentence = sentence.trim();
-                            if (!trimmedSentence.isEmpty()) {
-                                String translatedSentence = translator.translate(trimmedSentence, req.srcLan(), req.trgLan());
-                                translated.append(translatedSentence);
-
-                                if (sentence.endsWith(" ")) {
-                                    translated.append(" ");
-                                } else if (end < req.text().length()){
-                                    translated.append(" ");
-                                }
-                            }
-                        }
+//                        for(int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
+//                            String sentence = req.text().substring(start, end);
+//
+//                            String trimmedSentence = sentence.trim();
+//                            if (!trimmedSentence.isEmpty()) {
+//                                String translatedSentence = translator.translate(trimmedSentence, req.srcLan(), req.trgLan());
+//                                translated.append(translatedSentence);
+//
+//                                if (sentence.endsWith(" ")) {
+//                                    translated.append(" ");
+//                                } else if (end < req.text().length()){
+//                                    translated.append(" ");
+//                                }
+//                            }
+//                        }
                         if(translated.isEmpty()){
                             ctx.status(400);
                         }else
-                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), translated.toString()));
+                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), req.text() + ":)"));
                     });
                     config.routes.get("/connect", ctx -> {
-                        if(translatorRef.get() != null) {
+                        if(DATA_BASE != null) {
                             ArrayList<LanguageInfo> languages = new ArrayList<>();
                             ResultSet languagesData = DATA_BASE.getTheSet("languages", "id", "name",
                                     "nllb_name", "ocr_name");
@@ -82,6 +82,6 @@ public class Main {
         ).start(0);
         int port = app.port();
         System.out.println("SERVER_PORT: " + port);
-        translatorRef.set(new MachineTranslator(conf));
+       // translatorRef.set(new MachineTranslator(conf));
     }
 }
