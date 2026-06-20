@@ -39,4 +39,28 @@ public class DataBase {
         }
         return null;
     }
+
+    public boolean saveTheSet(String tableName, List<Object> data, String... fields){
+        if(data == null || data.isEmpty() || fields == null || (fields.length != data.size()))
+            return false;
+
+        StringBuilder request = new StringBuilder("INSERT INTO ").append(tableName).append(" (");
+        request.append(String.join(", ", fields));
+        request.append(") VALUES (");
+        String[] marks = new String[fields.length];
+        for(int i = 0; i < marks.length; i++)
+            marks[i] = "?";
+        request.append(String.join(", ", marks));
+        request.append(")");
+        try(Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(request.toString())){
+            for(int i = 0; i < fields.length; i++){
+                statement.setString(i + 1, (String) data.get(i));
+            }
+            return statement.executeUpdate() > 0;
+        }catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
