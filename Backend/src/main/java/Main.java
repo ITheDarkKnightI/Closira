@@ -78,6 +78,10 @@ public class Main {
                         }else
                             ctx.status(503);
                     });
+                    config.routes.post("/save", ctx -> {
+                        Word word = ctx.bodyAsClass(Word.class);
+
+                    });
                 }
         ).start(0);
         int port = app.port();

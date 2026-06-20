@@ -1,13 +1,16 @@
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 
 public class DataBase {
     private static HikariDataSource dataSource;
-    private static Statement statement;
     public DataBase(){
         HikariConfig config = new HikariConfig();
         String userDir = System.getProperty("user.home");
@@ -18,11 +21,6 @@ public class DataBase {
         config.setAutoCommit(true);
 
         dataSource = new HikariDataSource(config);
-        try {
-            statement = dataSource.getConnection().createStatement();
-        }catch(SQLException e){
-            e.printStackTrace();
-        }
     }
 
     public ResultSet getTheSet(String tableName, String... fields){
@@ -32,8 +30,13 @@ public class DataBase {
         }
         request.delete(request.length() - 1, request.length()); // delete comma in the end
         request.append(" FROM ").append(tableName);
-        try {
-            return statement.executeQuery(request.toString());
+        try(Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(request.toString());
+                ResultSet result = statement.executeQuery()
+        ) {
+            CachedRowSet cachedRowSet = RowSetProvider.newFactory().createCachedRowSet();
+            cachedRowSet.populate(result);
+            return cachedRowSet;
         }catch(SQLException e){
             e.printStackTrace();
         }
