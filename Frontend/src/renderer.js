@@ -24,6 +24,15 @@ const mainTrg = document.getElementById('tgtLang');
 const ocrSrc = document.getElementById('ocrLang');
 const ocrTrg = document.getElementById('ovTgtLang');
 
+function selectRandOption(selectE){
+  if(selectE.options.length == null){
+    console.log(`No options for ${selectE.name}`);
+    return;
+  }
+  let randomIndex = Math.floor(Math.random() * selectE.options.length);
+  selectE.selectedIndex = randomIndex;
+}
+
 function addOption(name, data){
   data.forEach(item => {
     let option = new Option(name, item.value);
@@ -84,6 +93,8 @@ async function waitForServer() {
 		[{value: language.nllbName, selects: [mainSrc, mainTrg]},
 		{value: language.ocrName, selects: [ocrSrc, ocrTrg]}]
 	)});
+	selectRandOption(mainTrg);
+	selectRandOption(ocrTrg);
       }
       setLoadingProgress(100);
       loadingTitle.textContent = 'Готово!';
