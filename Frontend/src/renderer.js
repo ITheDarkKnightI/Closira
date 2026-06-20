@@ -24,15 +24,13 @@ const mainTrg = document.getElementById('tgtLang');
 const ocrSrc = document.getElementById('ocrLang');
 const ocrTrg = document.getElementById('ovTgtLang');
 
-function addOption(name, nllbValue, ocrValue){
-  let mainOption = new Option(name, nllbValue);
-  let ocrOption = new Option(name, ocrValue);
-
-  mainSrc.add(mainOption);
-  mainTrg.add(mainOption);
-  	
-  ocrSrc.add(ocrOption);
-  ocrTrg.add(ocrOption);
+function addOption(name, data){
+  data.forEach(item => {
+    let option = new Option(name, item.value);
+    item.selects.forEach(select =>{
+      select.add(option.cloneNode(true));
+    });
+  });
 }
 
 function setLoadingProgress(pct) {
@@ -82,7 +80,10 @@ async function waitForServer() {
     const ok = await pingHealth();
     if (ok) {
       if(languages != null){
-        languages.forEach(language => {addOption(language.name, language.nllbName, language.ocrName)});
+        languages.forEach(language => {addOption(language.name,
+		[{value: language.nllbName, selects: [mainSrc, mainTrg]},
+		{value: language.ocrName, selects: [ocrSrc, ocrTrg]}]
+	)});
       }
       setLoadingProgress(100);
       loadingTitle.textContent = 'Готово!';
