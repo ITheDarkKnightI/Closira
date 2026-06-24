@@ -453,7 +453,7 @@ document.getElementById('saveOvBtn').addEventListener('click', function() {
   var src = document.getElementById('ocrResult').textContent;
   var tgt = document.getElementById('ovTransResult').textContent;
   if (!src || src === '—' || src === '…') { setStatus('Немає тексту', 'error'); return; }
-  dictionary.push({ src: src, tgt: tgt });
+  saveData(src, tgt);
   setStatus('Збережено до словника ✓', 'ok');
 });
 
