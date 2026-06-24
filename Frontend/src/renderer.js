@@ -9,6 +9,22 @@ var isRecordingHotkey = false;
 let url = "";
 let serverReady = false;
 let languages = null;
+
+// ═══════════════════════════════════════════
+// OTHER FUNCTIONS
+// ═══════════════════════════════════════════
+async function saveData(word1, text1){
+  console.log(`Post reqest to save data: ward: ${word1}; sentence: ${text1}`);
+  var current_url = url + "/save";
+  var resp = await fetch(current_url, {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  }, 
+	  body: JSON.stringify({word: word1, text: text1 })
+  });
+  if (!resp.ok) throw new Error('Помилка при перекладі' + resp.status);
+}
 // ═══════════════════════════════════════════
 // ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
 // ═══════════════════════════════════════════
@@ -242,7 +258,7 @@ document.getElementById('saveCardBtn').addEventListener('click', function() {
   var src = srcText.value.trim();
   var tgt = resultArea.classList.contains('has-text') ? resultArea.textContent : '';
   if (!src || !tgt) { setStatus('Немає тексту для збереження', 'error'); return; }
-  dictionary.push({ src: src, tgt: tgt });
+  saveData(src, tgt);
   setStatus('Збережено до словника ✓', 'ok');
   // Анімація кнопки
   var btn = this;
