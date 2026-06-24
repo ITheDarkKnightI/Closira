@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -58,10 +59,10 @@ public class Main {
 //                                }
 //                            }
 //                        }
-                        if(translated.isEmpty()){
-                            ctx.status(400);
-                        }else
-                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), req.text() + ":)"));
+//                        if(translated.isEmpty()){
+//                            ctx.status(400);
+//                        }else
+                            ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), req.text()));
                     });
                     config.routes.get("/connect", ctx -> {
                         if(DATA_BASE != null) {
@@ -80,7 +81,17 @@ public class Main {
                     });
                     config.routes.post("/save", ctx -> {
                         Word word = ctx.bodyAsClass(Word.class);
+                        ArrayList<Object> dataToSave= new ArrayList<>();
+                        dataToSave.add(word.word());
+                        dataToSave.add(word.text());
 
+                        boolean check = DATA_BASE.saveTheSet("saved_words", dataToSave,"word",
+                                "used_sentence");
+
+                        if(check)
+                            ctx.status(500);
+                        else
+                            ctx.status(200);
                     });
                 }
         ).start(0);
