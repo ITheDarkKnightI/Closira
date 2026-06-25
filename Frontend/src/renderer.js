@@ -8,7 +8,56 @@ var currentHotkey = 'Ctrl+Shift+T';
 var isRecordingHotkey = false;
 let url = "";
 let serverReady = false;
+let languages = null;
 
+// ═══════════════════════════════════════════
+// OTHER FUNCTIONS
+// ═══════════════════════════════════════════
+
+// saving word and its text to DB 
+async function saveData(word1, text1){
+  console.log(`Post reqest to save data: ward: ${word1}; sentence: ${text1}`);
+  var current_url = url + "/save";
+  var resp = await fetch(current_url, {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  }, 
+	  body: JSON.stringify({word: word1, text: text1 })
+  });
+  if (!resp.ok) throw new Error('Помилка при перекладі' + resp.status);
+}
+
+// Loading all saved word from db
+async function dataLoad(){
+  console.log(`Loading words from DB`);
+  var current_url = url + "/load";
+  var resp = await fetch(current_url, {
+    method: 'POST',
+    headers: {
+	'Content-Type': 'application/json'
+    }
+  }); 
+  if (!resp.ok) throw new Error('Помилка при завантаженні слів ' + resp.status);
+  let words = await resp.json();
+  words.forEach(word => {
+    dictionary.push({src: word.word, tgt: word.text});
+  });
+}
+
+// Delete from DB
+async function deleteData(word1, text1){
+  console.log(`Deleting data`);
+  const current_url = url + "/delete";
+  var resp = await fetch(current_url, {
+    method: 'POST',
+    headers: {
+	'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({word: word1, text: text1})
+  });
+  if(!resp.ok) throw new Error('Помилка під час видалення слів ' + resp.status);
+}
 // ═══════════════════════════════════════════
 // ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
 // ═══════════════════════════════════════════
@@ -18,6 +67,29 @@ const loadingSub = document.getElementById('loadingSub');
 const loadingProgressFill = document.getElementById('loadingProgressFill');
 const loadingError = document.getElementById('loadingError');
 const loadingErrorText = document.getElementById('loadingErrorText');
+// Src and Trg languages
+const mainSrc = document.getElementById('srcLang');
+const mainTrg = document.getElementById('tgtLang');
+const ocrSrc = document.getElementById('ocrLang');
+const ocrTrg = document.getElementById('ovTgtLang');
+
+function selectRandOption(selectE){
+  if(selectE.options.length == null){
+    console.log(`No options for ${selectE.name}`);
+    return;
+  }
+  let randomIndex = Math.floor(Math.random() * selectE.options.length);
+  selectE.selectedIndex = randomIndex;
+}
+
+function addOption(name, data){
+  data.forEach(item => {
+    let option = new Option(name, item.value);
+    item.selects.forEach(select =>{
+      select.add(option.cloneNode(true));
+    });
+  });
+}
 
 function setLoadingProgress(pct) {
   loadingProgressFill.style.width = pct + '%';
@@ -35,6 +107,7 @@ async function pingHealth() {
   if (!url) return false;
   try {
     const resp = await fetch(url + '/connect', { signal: AbortSignal.timeout(3000) });
+    languages = await resp.json();
     return resp.ok;
   } catch(e) {
     return false;
@@ -64,6 +137,18 @@ async function waitForServer() {
   while (attempts < maxAttempts) {
     const ok = await pingHealth();
     if (ok) {
+      if(languages != null){
+	// loading languages
+        languages.forEach(language => {addOption(language.name,
+		[{value: language.nllbName, selects: [mainSrc, mainTrg]},
+		{value: language.ocrName, selects: [ocrSrc, ocrTrg]}]
+	)});
+	selectRandOption(mainTrg);
+	selectRandOption(ocrTrg);
+      }
+      // loading words
+      dataLoad();
+
       setLoadingProgress(100);
       loadingTitle.textContent = 'Готово!';
       loadingSub.textContent = 'Сервер готовий до роботи.';
@@ -210,7 +295,10 @@ document.getElementById('saveCardBtn').addEventListener('click', function() {
   var src = srcText.value.trim();
   var tgt = resultArea.classList.contains('has-text') ? resultArea.textContent : '';
   if (!src || !tgt) { setStatus('Немає тексту для збереження', 'error'); return; }
-  dictionary.push({ src: src, tgt: tgt });
+  // saving to DB
+  saveData(src, tgt);
+  // saving in current session
+  dictionary.push({src: src, tgt: tgt});
   setStatus('Збережено до словника ✓', 'ok');
   // Анімація кнопки
   var btn = this;
@@ -257,6 +345,9 @@ document.getElementById('shuffleBtn').addEventListener('click', function() {
   currentIndex = 0; showCard(0);
 });
 document.getElementById('removeBtn').addEventListener('click', function() {
+  // delete the word
+  const currentWord = dictionary[currentIndex];
+  deleteData(currentWord.src, false);
   dictionary.splice(currentIndex, 1);
   if (dictionary.length === 0) { renderStudyView(); return; }
   currentIndex = Math.min(currentIndex, dictionary.length - 1);
@@ -405,7 +496,8 @@ document.getElementById('saveOvBtn').addEventListener('click', function() {
   var src = document.getElementById('ocrResult').textContent;
   var tgt = document.getElementById('ovTransResult').textContent;
   if (!src || src === '—' || src === '…') { setStatus('Немає тексту', 'error'); return; }
-  dictionary.push({ src: src, tgt: tgt });
+  saveData(src, tgt);
+  dictionary.push({src: src, tgt: tgt});
   setStatus('Збережено до словника ✓', 'ok');
 });
 
