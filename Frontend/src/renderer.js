@@ -44,6 +44,20 @@ async function dataLoad(){
     dictionary.push({src: word.word, tgt: word.text});
   });
 }
+
+// Delete from DB
+async function deleteData(word1, text1){
+  console.log(`Deleting data`);
+  const current_url = url + "/delete";
+  var resp = await fetch(current_url, {
+    method: 'POST',
+    headers: {
+	'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({word: word1, text: text1})
+  });
+  if(!resp.ok) throw new Error('Помилка під час видалення слів ' + resp.status);
+}
 // ═══════════════════════════════════════════
 // ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
 // ═══════════════════════════════════════════
@@ -331,6 +345,9 @@ document.getElementById('shuffleBtn').addEventListener('click', function() {
   currentIndex = 0; showCard(0);
 });
 document.getElementById('removeBtn').addEventListener('click', function() {
+  // delete the word
+  const currentWord = dictionary[currentIndex];
+  deleteData(currentWord.src, false);
   dictionary.splice(currentIndex, 1);
   if (dictionary.length === 0) { renderStudyView(); return; }
   currentIndex = Math.min(currentIndex, dictionary.length - 1);
