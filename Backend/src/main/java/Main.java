@@ -93,6 +93,17 @@ public class Main {
                         else
                             ctx.status(200);
                     });
+                    config.routes.post("/load", ctx -> {
+                        List<Word> words = new ArrayList<>();
+                        ResultSet wordsData = DATA_BASE.getTheSet("saved_words", "word", "used_sentence");
+                        if(wordsData == null)
+                            ctx.status(500);
+                        while(wordsData.next()){
+                            words.add(new Word(wordsData.getString("word"), wordsData.getString("used_sentence")));
+                        }
+                        ctx.json(words);
+                        ctx.status(200);
+                    });
                 }
         ).start(0);
         int port = app.port();
