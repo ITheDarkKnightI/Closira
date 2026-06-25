@@ -66,4 +66,24 @@ public class DataBase {
             return false;
         }
     }
+
+    public boolean deleteWord(String tableName, String word, boolean isFull){
+        if(!isFull && (word == null || word.isEmpty()))
+            return false;
+
+        StringBuilder request = new StringBuilder("DELETE FROM ").append(tableName);
+        if(!isFull)
+            request.append(" WHERE word = ?");
+
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(request.toString())){
+            if(!isFull)
+                statement.setString(1, word);
+
+            return statement.executeUpdate() > 0;
+        }catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
