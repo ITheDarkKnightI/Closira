@@ -104,6 +104,13 @@ public class Main {
                         ctx.json(words);
                         ctx.status(200);
                     });
+                    config.routes.post("/delete", ctx -> {
+                        Word word = ctx.bodyAsClass(Word.class);
+                        if(word.word() == null)
+                            DATA_BASE.deleteWord("saved_words", null, true);
+                        else
+                            DATA_BASE.deleteWord("saved_words", word.word(), false);
+                    });
                 }
         ).start(0);
         int port = app.port();
