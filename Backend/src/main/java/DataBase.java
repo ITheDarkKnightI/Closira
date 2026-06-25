@@ -43,7 +43,7 @@ public class DataBase {
         return null;
     }
 
-    public boolean saveTheSet(String tableName, List<Object> data, String... fields){
+    public boolean saveTheSet(String tableName, List<String> data, String... fields){
         if(data == null || data.isEmpty() || fields == null || (fields.length != data.size()))
             return false;
 

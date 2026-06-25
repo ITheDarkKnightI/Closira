@@ -65,7 +65,6 @@ public class Main {
                             ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), req.text()));
                     });
                     config.routes.get("/connect", ctx -> {
-                        if(DATA_BASE != null) {
                             ArrayList<LanguageInfo> languages = new ArrayList<>();
                             ResultSet languagesData = DATA_BASE.getTheSet("languages", "id", "name",
                                     "nllb_name", "ocr_name");
@@ -76,12 +75,10 @@ public class Main {
                             }
                             ctx.json(languages);
                             ctx.status(200);
-                        }else
-                            ctx.status(503);
                     });
                     config.routes.post("/save", ctx -> {
                         Word word = ctx.bodyAsClass(Word.class);
-                        ArrayList<Object> dataToSave= new ArrayList<>();
+                        ArrayList<String> dataToSave= new ArrayList<>();
                         dataToSave.add(word.word());
                         dataToSave.add(word.text());
 
@@ -89,15 +86,17 @@ public class Main {
                                 "used_sentence");
 
                         if(check)
-                            ctx.status(500);
-                        else
                             ctx.status(200);
+                        else
+                            ctx.status(500);
                     });
                     config.routes.post("/load", ctx -> {
                         List<Word> words = new ArrayList<>();
                         ResultSet wordsData = DATA_BASE.getTheSet("saved_words", "word", "used_sentence");
-                        if(wordsData == null)
+                        if(wordsData == null) {
                             ctx.status(500);
+                            return;
+                        }
                         while(wordsData.next()){
                             words.add(new Word(wordsData.getString("word"), wordsData.getString("used_sentence")));
                         }
@@ -106,10 +105,16 @@ public class Main {
                     });
                     config.routes.post("/delete", ctx -> {
                         Word word = ctx.bodyAsClass(Word.class);
+                        boolean status;
                         if(word.word() == null)
-                            DATA_BASE.deleteWord("saved_words", null, true);
+                            status = DATA_BASE.deleteWord("saved_words", null, true);
                         else
-                            DATA_BASE.deleteWord("saved_words", word.word(), false);
+                            status = DATA_BASE.deleteWord("saved_words", word.word(), false);
+
+                        if(status)
+                            ctx.status(200);
+                        else
+                            ctx.status(500);
                     });
                 }
         ).start(0);
