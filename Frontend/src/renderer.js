@@ -13,6 +13,8 @@ let languages = null;
 // ═══════════════════════════════════════════
 // OTHER FUNCTIONS
 // ═══════════════════════════════════════════
+
+// saving word and its text to DB 
 async function saveData(word1, text1){
   console.log(`Post reqest to save data: ward: ${word1}; sentence: ${text1}`);
   var current_url = url + "/save";
@@ -24,6 +26,23 @@ async function saveData(word1, text1){
 	  body: JSON.stringify({word: word1, text: text1 })
   });
   if (!resp.ok) throw new Error('Помилка при перекладі' + resp.status);
+}
+
+// Loading all saved word from db
+async function dataLoad(){
+  console.log(`Loading words from DB`);
+  var current_url = url + "/load";
+  var resp = await fetch(current_url, {
+    method: 'POST',
+    headers: {
+	'Content-Type': 'application/json'
+    }
+  }); 
+  if (!resp.ok) throw new Error('Помилка при завантаженні слів ' + resp.status);
+  let words = await resp.json();
+  words.forEach(word => {
+    dictionary.push({src: word.word, tgt: word.text});
+  });
 }
 // ═══════════════════════════════════════════
 // ЕКРАН ЗАВАНТАЖЕННЯ + ПЕРЕВІРКА ПІДКЛЮЧЕННЯ
@@ -105,6 +124,7 @@ async function waitForServer() {
     const ok = await pingHealth();
     if (ok) {
       if(languages != null){
+	// loading languages
         languages.forEach(language => {addOption(language.name,
 		[{value: language.nllbName, selects: [mainSrc, mainTrg]},
 		{value: language.ocrName, selects: [ocrSrc, ocrTrg]}]
@@ -112,6 +132,9 @@ async function waitForServer() {
 	selectRandOption(mainTrg);
 	selectRandOption(ocrTrg);
       }
+      // loading words
+      dataLoad();
+
       setLoadingProgress(100);
       loadingTitle.textContent = 'Готово!';
       loadingSub.textContent = 'Сервер готовий до роботи.';
@@ -258,7 +281,10 @@ document.getElementById('saveCardBtn').addEventListener('click', function() {
   var src = srcText.value.trim();
   var tgt = resultArea.classList.contains('has-text') ? resultArea.textContent : '';
   if (!src || !tgt) { setStatus('Немає тексту для збереження', 'error'); return; }
+  // saving to DB
   saveData(src, tgt);
+  // saving in current session
+  dictionary.push({src: src, tgt: tgt});
   setStatus('Збережено до словника ✓', 'ok');
   // Анімація кнопки
   var btn = this;
@@ -454,6 +480,7 @@ document.getElementById('saveOvBtn').addEventListener('click', function() {
   var tgt = document.getElementById('ovTransResult').textContent;
   if (!src || src === '—' || src === '…') { setStatus('Немає тексту', 'error'); return; }
   saveData(src, tgt);
+  dictionary.push({src: src, tgt: tgt});
   setStatus('Збережено до словника ✓', 'ok');
 });
 
