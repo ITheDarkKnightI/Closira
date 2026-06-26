@@ -118,6 +118,7 @@ function createServer(){
             const match = output.match(/SERVER_PORT: (\d+)/);
             if (match) {
 				console.log("Matched: " + match[1]);
+		    if(mainWindow && !mainWindow.isDestroyed())
 				mainWindow.webContents.send('set-server-port', parseInt(match[1]));
                 resolve(parseInt(match[1]));
             }
@@ -127,6 +128,10 @@ function createServer(){
             console.error('Java error:', data.toString());
         });
 
+	javaProcess.on('close', (code) =>{
+		if(serverPort === null)
+			reject(new Error(`Java-process is closed. Code: ${code}`))
+	});
         javaProcess.on('error', reject);
 	});
 }
@@ -270,7 +275,11 @@ app.on('before-quit', (event) => {
       });
     } else {
       // For linux in future
-	  try { javaProcess.kill('SIGKILL'); } catch (e) {}
+	  try { javaProcess.kill('SIGTERM'); 
+		setTimeout(() => {
+			try{javaProcess.kill('SIGKILL');} catch(e) {}
+		}, 2000);
+	  } catch (e) {}
       isAppQuitting = true;
       app.quit();
     }

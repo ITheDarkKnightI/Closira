@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class DataBase {
-    private static HikariDataSource dataSource;
+    private HikariDataSource dataSource;
     public DataBase(){
         HikariConfig config = new HikariConfig();
         String userDir = System.getProperty("user.home");
@@ -24,6 +24,8 @@ public class DataBase {
     }
 
     public ResultSet getTheSet(String tableName, String... fields){
+        if(fields == null || fields.length == 0)
+            return null;
         StringBuilder request = new StringBuilder("SELECT");
         for(String field : fields){
             request.append(" ").append(field).append(",");

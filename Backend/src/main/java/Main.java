@@ -65,9 +65,14 @@ public class Main {
                             ctx.json(new TranslationRequest(req.srcLan(), req.trgLan(), req.text()));
                     });
                     config.routes.get("/connect", ctx -> {
+                        // if(translatorRef != null) -> execute code below. Else -> set ctx.status(500)
                             ArrayList<LanguageInfo> languages = new ArrayList<>();
                             ResultSet languagesData = DATA_BASE.getTheSet("languages", "id", "name",
                                     "nllb_name", "ocr_name");
+                            if(languagesData == null){
+                                ctx.status(500);
+                                return;
+                            }
                             while(languagesData.next()){
                                 languages.add(new LanguageInfo(languagesData.getInt("id"),
                                         languagesData.getString("name"), languagesData.getString("nllb_name"),
