@@ -119,6 +119,14 @@ async function waitForServer() {
   loadingTitle.textContent = 'Запуск сервера…';
   loadingSub.textContent = 'Завантаження моделей перекладу. Це може зайняти кілька секунд.';
 
+	if(window.electronAPI){
+		const port = await window.electronAPI.getServerPort();
+		if(port) url = `http://localhost:${port}`;
+	}
+
+	window.electronAPI.onRecievePort(port => {
+		url = `http://localhost:${port}`;
+	});
   let portWait = 0;
   while (!url && portWait < 120) {
     await new Promise(r => setTimeout(r, 500));
@@ -347,7 +355,7 @@ document.getElementById('shuffleBtn').addEventListener('click', function() {
 document.getElementById('removeBtn').addEventListener('click', function() {
   // delete the word
   const currentWord = dictionary[currentIndex];
-  deleteData(currentWord.src, false);
+  deleteData(currentWord.src, currentWord.tgt);
   dictionary.splice(currentIndex, 1);
   if (dictionary.length === 0) { renderStudyView(); return; }
   currentIndex = Math.min(currentIndex, dictionary.length - 1);

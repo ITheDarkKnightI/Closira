@@ -275,7 +275,11 @@ app.on('before-quit', (event) => {
       });
     } else {
       // For linux in future
-	  try { javaProcess.kill('SIGKILL'); } catch (e) {}
+	  try { javaProcess.kill('SIGTERM'); 
+		setTimeout(() => {
+			try{javaProcess.kill('SIGKILL');} catch(e) {}
+		}, 2000);
+	  } catch (e) {}
       isAppQuitting = true;
       app.quit();
     }
